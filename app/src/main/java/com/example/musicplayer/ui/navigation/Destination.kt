@@ -6,6 +6,6 @@ object Destination {
     const val search = "search"
     const val library = "library"
     const val detail = "detail/{type}/{id}"
-    const val addSongs = "addSongs/{name}"
-    const val editPlaylist = "editPlaylist/{name}"
+    const val addSongs = "addSongs/{id}"
+    const val editPlaylist = "editPlaylist/{id}"
 }

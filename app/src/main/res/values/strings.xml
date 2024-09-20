@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Music Player</string>
+    <string name="app_name">MStreamPlayer</string>
     <string name="cd_play" translatable="false">Play</string>
     <string name="notification_channel_name" translatable="false">Music Channel</string><string name="notification_channel_description" translatable="false">Shows the currently playing music</string>
     <string name="nav_home">Home</string>
@@ -80,7 +80,7 @@
 
     <!--    Search -->
     <string name="search_for_tracks">Search for tracks</string>
-    <string name="search_for_radiostation">station name or county</string>
+    <string name="search_for_radiostation">Station name or county</string>
     <!--Track parameters-->
     <string name="unknown_track">Unknown Track</string>
     <string name="unknown_artist">Unknown Artist</string>

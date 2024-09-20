@@ -49,7 +49,6 @@ import com.example.musicplayer.R
 import com.example.musicplayer.data.SettingsKeys.isSystemDark
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.library.AddNewPlaylistDialog
 import com.example.musicplayer.ui.theme.graySurface
 import com.example.musicplayer.ui.theme.typography
@@ -124,13 +123,13 @@ fun SongSettingsSheet(
 }
 
 @Composable
-fun SongSettingsItem(
-    homeUiState: HomeUiState,
+fun SongSettingsBottomSheet(
+    playlists: List<Playlist>,
+    selectedPlaylist: List<Song>,
     currentSong: Song?,
     showSongSettings: MutableState<Boolean>,
     showAddToPlaylistDialog: MutableState<Boolean>,
     songSettingsItem: Song,
-    surfaceGradient: List<Color>,
     onOkAddPlaylistClick: (newPlaylist: Playlist) -> Unit,
     onPlaylistToAddSongChosen: (updatedPlaylist: Playlist) -> Unit,
     onDetailMenuItemClick: (menuItem: String, song: Song) -> Unit
@@ -140,7 +139,7 @@ fun SongSettingsItem(
         SongSettingsSheet(
             song = songSettingsItem,
             currentSong = currentSong,
-            selectedPlaylist = homeUiState.selectedPlaylist!!.songList,
+            selectedPlaylist = selectedPlaylist,
             onDismiss = {showSongSettings.value = false},
             background = MaterialTheme.colorScheme.background,
             onDetailMenuItemClick = onDetailMenuItemClick
@@ -149,7 +148,7 @@ fun SongSettingsItem(
 
     if(showAddToPlaylistDialog.value) {
         AddSongToPlaylistSheet(
-            homeUiState = homeUiState,
+            playlists = playlists,
             showAddToPlaylistDialog = showAddToPlaylistDialog,
             songSettingsItem = songSettingsItem,
             onCreatePlaylistClick = {showCreatePlaylistDialog.value = true},
@@ -163,7 +162,7 @@ fun SongSettingsItem(
                 showCreatePlaylistDialog.value = false
                           },
             showDialog = showCreatePlaylistDialog,
-            homeUiState = homeUiState
+            allPlaylistNames = playlists.map { it.name }
         )
     }
 

@@ -1,6 +1,5 @@
 package com.example.musicplayer.ui.details.components
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -27,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -39,7 +37,7 @@ import com.example.musicplayer.ui.theme.modifiers.verticalGradientBackground
 fun AnimatedToolBar(
     contentName: String,
     selectedPlaylist: Playlist,
-    playerState: PlayerState,
+    playerState: PlayerState?,
     scrollState: ScrollState, surfaceGradient: List<Color>,
     onPlayButtonClick: () -> Unit,
     onNavigateUp: () -> Unit) {

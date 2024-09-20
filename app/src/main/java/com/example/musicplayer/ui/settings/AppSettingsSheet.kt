@@ -220,28 +220,4 @@ fun ColorPalletDropdownMenu() {
 
     }
 }
-@Composable
-fun SettingsMenuItem(item: Pair<String, ImageVector> = Pair(stringResource(R.string.download), Icons.Default.Download), onItemClick: (name: String) -> Unit) {
-
-    Row(verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
-        modifier = Modifier
-            .height(48.dp)
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .clickable {
-                onItemClick(item.first)
-            }
-    ) {
-        Icon(imageVector = item.second, contentDescription = item.first, modifier = Modifier
-            .padding(end = 8.dp)
-            .size(24.dp))
-        Text(
-            text = item.first,
-            style = typography.headlineMedium.copy(fontSize = 16.sp),
-            modifier = Modifier.padding(horizontal = 8.dp)
-        )
-
-    }
-}
 

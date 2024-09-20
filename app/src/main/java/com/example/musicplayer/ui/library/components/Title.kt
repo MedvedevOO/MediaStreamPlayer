@@ -18,7 +18,7 @@ fun Title(text: String, modifier: Modifier = Modifier) {
         text = text,
         style = typography.headlineSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface, fontSize = 24.sp),
         modifier = modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp)
             .semantics { heading() }
     )
 }

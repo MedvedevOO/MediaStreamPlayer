@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import coil.ImageLoader
 import coil.request.ImageRequest
 import com.example.musicplayer.data.DataProvider
@@ -19,7 +17,7 @@ suspend fun albumCoverImage(image: Uri, context: Context): Bitmap {
         val imageLoader = ImageLoader(context)
         val request = ImageRequest.Builder(context)
             .data(image)
-            .allowHardware(false) // Disable hardware bitmaps, since they can't be manipulated.
+            .allowHardware(false)
             .build()
 
         val result = imageLoader.execute(request)

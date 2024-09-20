@@ -18,14 +18,13 @@ import com.example.musicplayer.R
 import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.library.components.LibraryHorizontalAddPlaylistItem
 import com.example.musicplayer.ui.library.components.LibraryHorizontalCardItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddSongToPlaylistSheet(
-    homeUiState: HomeUiState,
+    playlists: List<Playlist>,
     showAddToPlaylistDialog: MutableState<Boolean>,
     songSettingsItem: Song,
     onCreatePlaylistClick: () -> Unit,
@@ -46,7 +45,7 @@ fun AddSongToPlaylistSheet(
         LazyColumn {
             item { LibraryHorizontalAddPlaylistItem(onItemClicked = onCreatePlaylistClick) }
             itemsIndexed(
-                homeUiState.playlists!!.toList()) { index, item->
+                playlists.toList()) { index, item->
                 if (
                     item.name != allTracksName &&
                     item.name != recentlyAddedName &&

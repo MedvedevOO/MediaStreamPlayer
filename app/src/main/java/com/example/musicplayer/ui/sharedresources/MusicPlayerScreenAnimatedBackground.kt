@@ -1,4 +1,4 @@
-package com.example.musicplayer.ui.home.components
+package com.example.musicplayer.ui.sharedresources
 
 import android.graphics.Bitmap
 import androidx.compose.animation.animateColorAsState
@@ -21,24 +21,41 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.net.toUri
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavDestination.Companion.hierarchy
 import com.example.musicplayer.data.DataProvider
+import com.example.musicplayer.data.SettingsKeys
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
-import com.example.musicplayer.ui.sharedresources.albumCoverImage
+import com.example.musicplayer.ui.navigation.Destination
 import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 
 @Composable
-fun MusicPlayerScreenAnimatedBackground(currentSong: Song?, playerState: PlayerState?) {
+fun MusicPlayerScreenAnimatedBackground(
+    currentSong: Song?,
+    playerState: PlayerState?,
+    currentBackStackEntry: NavBackStackEntry?
+) {
     val context = LocalContext.current
-    var bitmap by remember { mutableStateOf<Bitmap?>(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(0xFF454343.toInt()) }) }
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(
+            Bitmap.createBitmap(
+                100,
+                100,
+                Bitmap.Config.ARGB_8888
+            ).apply { eraseColor(0xFF454343.toInt()) })
+    }
     LaunchedEffect(currentSong) {
-        bitmap = albumCoverImage(currentSong?.imageUrl?.toUri()?: DataProvider.getDefaultCover(), context)
+        bitmap = albumCoverImage(
+            currentSong?.imageUrl?.toUri() ?: DataProvider.getDefaultCover(),
+            context
+        )
     }
 
     bitmap?.let { image ->
         var swatch = try {
             image.generateDominantColorState()
-        } catch (e : Exception) {
+        } catch (e: Exception) {
             null
         }
         if (swatch == null) {
@@ -61,69 +78,62 @@ fun MusicPlayerScreenAnimatedBackground(currentSong: Song?, playerState: PlayerS
 
         val currentAlpha = rememberUpdatedState(newValue = alphaTarget.floatValue)
 
-        val alpha = animateFloatAsState(targetValue = currentAlpha.value, animationSpec = tween(durationMillis = 1000),
+        val alpha = animateFloatAsState(
+            targetValue = currentAlpha.value, animationSpec = tween(durationMillis = 1000),
             label = "player_alpha"
         )
         val surfaceColor = MaterialTheme.colorScheme.surface
-        val dominantGradient by rememberUpdatedState(newValue = listOf(dominantColor.value, surfaceColor))
+        val dominantGradient by rememberUpdatedState(
+            newValue = listOf(
+                dominantColor.value,
+                surfaceColor
+            )
+        )
 
-        when(playerState) {
+        when (playerState) {
             PlayerState.PLAYING -> {
                 alphaTarget.floatValue = 0.5f
             }
+
             PlayerState.PAUSED, PlayerState.STOPPED, null -> {
                 alphaTarget.floatValue = 0.85f
             }
         }
 
 
+
+        BackgroundVideoPlayer(
+            playerState = playerState,
+            modifier = Modifier.fillMaxSize()
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
-        ) {
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            dominantGradient[0],
+                            MaterialTheme.colorScheme.primary.copy(alpha = alpha.value)
+                        )
+                    )
+                )
+        )
 
-            BackgroundVideoPlayer(
-                playerState = playerState,
-                modifier = Modifier.matchParentSize()
-            )
+
+
+        if (currentBackStackEntry?.destination?.hierarchy?.any { it.route == Destination.home } == false) {
             Box(
                 modifier = Modifier
-                    .matchParentSize()
+                    .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            colors = listOf(
-                                dominantGradient[0],
-                                MaterialTheme.colorScheme.primary.copy(alpha = alpha.value)
-                            )
+                            colors = DataProvider
+                                .surfaceGradient(SettingsKeys.isSystemDark(context))
+                                .asReversed()
                         )
                     )
             )
-    }
-
-//    val swatch = remember(currentSong?.imageUrl?.toUri()) { image.generateDominantColorState() }
-////
-////    val swatch = image.generateDominantColorState()
-//    val dominantColor = animateColorAsState(
-//        targetValue = Color(swatch.rgb),
-//        animationSpec = tween(durationMillis = 1000),
-//        label = "animateColorAsState CurrentTrackScreen"
-//    )
-
-        //TODO: придумать как реализовать затенение
-//        if (MainActivity.currentScreen.value != NavType.HOME) {
-//            Box(
-//                modifier = Modifier
-//                    .fillMaxSize()
-//                    .background(
-//                        Brush.verticalGradient(
-//                            colors = listOf(
-//                                MaterialTheme.colorScheme.background,
-//                                Color.Transparent
-//                            )
-//                        )
-//                    )
-//            )
-//        }
+        }
 
     }
 }

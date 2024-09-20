@@ -1,6 +1,8 @@
 package com.example.musicplayer.data.mapper
 
+import android.net.Uri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.MediaMetadata
 import com.example.musicplayer.R
 import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.dto.SongDto
@@ -23,7 +25,7 @@ fun MediaItem.toSong() =
     Song(
         mediaId = mediaId,
         title = mediaMetadata.title.toString(),
-        artist = mediaMetadata.subtitle.toString(),
+        artist = mediaMetadata.artist.toString(),
         album = mediaMetadata.albumTitle.toString(),
         genre = mediaMetadata.genre.toString(),
         year = mediaMetadata.releaseYear.toString(),
@@ -31,6 +33,26 @@ fun MediaItem.toSong() =
         imageUrl = mediaMetadata.artworkUri.toString()
     )
 
+fun Song.toMediaItem() = MediaItem.Builder()
+        .setMediaId(mediaId)
+        .setUri(songUrl)
+        .setMediaMetadata(
+            MediaMetadata.Builder()
+                .setTitle(title)
+                .setArtist(artist)
+                .setAlbumTitle(album)
+                .setGenre(genre)
+                .setReleaseYear(
+                    try {
+                        year.toInt()
+                    } catch (e: NumberFormatException) {
+                        0
+                    }
+                )
+                .setArtworkUri(Uri.parse(imageUrl))
+                .build()
+        )
+        .build()
 fun RadioStation.toSong() =
     Song(
         mediaId = url, // You can use the hash of the name as a unique ID

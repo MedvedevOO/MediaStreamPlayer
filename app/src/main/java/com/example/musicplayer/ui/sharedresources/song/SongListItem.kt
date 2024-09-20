@@ -7,11 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -29,27 +27,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.size.Size
-import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.theme.typography
 
 @Composable
 fun SongListItem(
     song: Song,
-    homeUiState: HomeUiState,
+    allSongs: List<Song>,
+    songInFavorites: Boolean,
     currentSong: Song?,
     playerState: PlayerState?,
     onItemClick: (song: Song) -> Unit,
@@ -57,7 +49,6 @@ fun SongListItem(
     onLikeClick: (song: Song) -> Unit
 ) {
     val defaultColor = MaterialTheme.colorScheme.onSurface
-    val songInFavorites = homeUiState.playlists!![2].songList.contains(song)
     val likeIcon =  remember { mutableStateOf(Icons.Default.FavoriteBorder) }
     val likeIconColor = remember { mutableStateOf(defaultColor) }
     Row(
@@ -89,12 +80,6 @@ fun SongListItem(
                     .zIndex(1f))
             }
         }
-//        AlbumArtWithGifOverlay(
-//            albumArtUri = song.artwork.toUri(),
-//            isCurrentTrack = isCurrentTrack.value,
-//            state = MusicPlayerData.currentTrackAndState!!.state
-//        )
-
         Column(
             modifier = Modifier
                 .height(70.dp)
@@ -125,7 +110,7 @@ fun SongListItem(
                 likeIconColor.value = MaterialTheme.colorScheme.onSurface
             }
         }
-        if (homeUiState.songs!!.contains(song)) {
+        if (allSongs.contains(song)) {
             Icon(
                 imageVector = likeIcon.value,
                 contentDescription = null,

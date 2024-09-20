@@ -13,20 +13,15 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.example.musicplayer.domain.model.Album
-import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.other.MusicControllerUiState
-import com.example.musicplayer.ui.home.HomeEvent
-import com.example.musicplayer.ui.home.HomeUiState
+import com.example.musicplayer.ui.details.DetailScreenEvent
+import com.example.musicplayer.ui.details.DetailScreenUiState
 
 @Composable
 fun BottomScrollableContent(
-    homeUiState: HomeUiState,
-    onEvent: (HomeEvent) -> Unit,
-    navController: NavController,
-    musicControllerUiState: MusicControllerUiState,
+    uiState: DetailScreenUiState,
+    onEvent: (DetailScreenEvent) -> Unit,
     contentName: String,
     songList: SnapshotStateList<Song>,
     albumsList: List<Album>,
@@ -36,8 +31,9 @@ fun BottomScrollableContent(
     onSongListItemLikeClick: (song: Song) -> Unit,
     onPlayButtonClick: () -> Unit,
     onShuffleClick: () -> Unit,
-    onAlbumCardClick: (album: Album) -> Unit,
-    onAddTracksClick: (playlist: Playlist) -> Unit
+    onAlbumCardClick: (albumId: Int) -> Unit,
+    onAddTracksClick: (playlistId: Int) -> Unit,
+    onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
     Column(modifier = Modifier.verticalScroll(state = scrollState)) {
         Spacer(modifier = Modifier.height(430.dp))
@@ -49,8 +45,8 @@ fun BottomScrollableContent(
 //                        PlayerRow()
                         PlayButton(
                             contentName = contentName,
-                            selectedPlaylist = homeUiState.selectedPlaylist!!,
-                            playerState = musicControllerUiState.playerState!!,
+                            selectedPlaylist = uiState.selectedPlaylist!!,
+                            playerState = uiState.playerState,
                             onPlayButtonClick = onPlayButtonClick
                         )
                         DownloadedRow(
@@ -63,16 +59,15 @@ fun BottomScrollableContent(
                 }
 
                 SongListScrollingSection(
-                    homeUiState = homeUiState,
+                    uiState = uiState,
                     onEvent = onEvent,
-                    navController = navController,
-                    musicControllerUiState = musicControllerUiState,
                     contentName = contentName,
                     songList = songList,
                     albumsList = albumsList,
                     onSongListItemClick = onSongListItemClick,
                     onAlbumCardClick = onAlbumCardClick,
-                    onAddTracksClick = onAddTracksClick
+                    onAddTracksClick = onAddTracksClick,
+                    onSongListItemSettingsClick = onSongListItemSettingsClick
 
                 )
 

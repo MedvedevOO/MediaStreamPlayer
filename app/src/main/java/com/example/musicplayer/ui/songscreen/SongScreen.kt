@@ -1,13 +1,11 @@
 package com.example.musicplayer.ui.songscreen
 
 import android.graphics.Bitmap
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -25,16 +23,17 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.rounded.Forward10
-import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material.icons.rounded.SkipPrevious
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonColors
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -50,101 +49,100 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
-import androidx.navigation.NavController
-import coil.compose.rememberAsyncImagePainter
-import coil.request.ImageRequest
-import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.other.toTime
-import com.example.musicplayer.ui.home.HomeEvent
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.sharedresources.albumCoverImage
-import com.example.musicplayer.ui.sharedresources.song.SongSettingsItem
 import com.example.musicplayer.ui.songscreen.component.ImagePager
 import com.example.musicplayer.ui.songscreen.component.SongDescription
 import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
     showScreen: MutableState<Boolean>,
-    homeUiState: HomeUiState,
-    navController: NavController,
-    onHomeEvent: (HomeEvent) -> Unit,
     onEvent: (SongEvent) -> Unit,
     musicControllerUiState: MusicControllerUiState,
-    onNavigateUp: () -> Unit,
+    onSongListItemSettingsClick: (song: Song) -> Unit,
+    onGotoArtistClick: () -> Unit,
+    onGotoAlbumClick: () -> Unit
 ) {
-    if (musicControllerUiState.currentSong != null) {
-        val song = try {
-            homeUiState.songs!!.first {it.songUrl == musicControllerUiState.currentSong.songUrl}
-        } catch (e: NoSuchElementException) {
-            musicControllerUiState.currentSong
-        }
+        val scope = rememberCoroutineScope()
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ModalBottomSheet(
             sheetState = sheetState,
             onDismissRequest = { showScreen.value = false },
             dragHandle = {},
             shape = RoundedCornerShape(0.dp)
-        ){
+        ) {
             SongScreenBody(
-                homeUiState = homeUiState,
-                navController = navController,
+                allSongs = musicControllerUiState.songs ?: emptyList(),
                 previousSong = musicControllerUiState.previousSong,
-                currentSong = song,
+                currentSong = musicControllerUiState.currentSong!!,
                 nextSong = musicControllerUiState.nextSong,
-                onNavigateUp = onNavigateUp,
-                musicControllerUiState = musicControllerUiState,
+                playerState = musicControllerUiState.playerState,
+                currentPosition = musicControllerUiState.currentPosition,
+                totalDuration = musicControllerUiState.totalDuration,
+                onNavigateUp = {
+                    scope.launch {
+                        sheetState.hide()
+                        showScreen.value = false
+                    }
+                },
                 onEvent = onEvent,
-                onHomeEvent = onHomeEvent
+                onSongListItemSettingsClick = onSongListItemSettingsClick,
+                onGotoAlbumClick = onGotoAlbumClick,
+                onGotoArtistClick = onGotoArtistClick
             )
         }
 
-
-
-    }
 }
 
 @Composable
 fun SongScreenBody(
-    homeUiState: HomeUiState,
-    navController: NavController,
+    allSongs: List<Song>,
     previousSong: Song?,
     currentSong: Song,
     nextSong: Song?,
-    onHomeEvent: (HomeEvent) -> Unit,
+    playerState: PlayerState?,
+    currentPosition: Long,
+    totalDuration: Long,
     onEvent: (SongEvent) -> Unit,
-    musicControllerUiState: MusicControllerUiState,
     onNavigateUp: () -> Unit,
-) {
+    onSongListItemSettingsClick: (song: Song) -> Unit,
+    onGotoArtistClick: () -> Unit,
+    onGotoAlbumClick: () -> Unit,
+
+    ) {
     val backgroundColor = MaterialTheme.colorScheme.background
     val context = LocalContext.current
 
     val playPauseIcon =
-        if (musicControllerUiState.playerState == PlayerState.PLAYING) Icons.Default.Pause else Icons.Default.PlayArrow
-
-    val showSongSettings = remember { mutableStateOf(false) }
-    val showAddToPlaylistDialog = remember { mutableStateOf(false) }
-
-    var bitmap by remember { mutableStateOf<Bitmap?>(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(0xFF454343.toInt()) }) }
+        if (playerState == PlayerState.PLAYING) Icons.Default.Pause else Icons.Default.PlayArrow
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(
+            Bitmap.createBitmap(
+                100,
+                100,
+                Bitmap.Config.ARGB_8888
+            ).apply { eraseColor(0xFF454343.toInt()) })
+    }
     LaunchedEffect(currentSong) {
         bitmap = albumCoverImage(currentSong.imageUrl.toUri(), context)
     }
@@ -152,10 +150,10 @@ fun SongScreenBody(
     bitmap?.let { image ->
         val swatch = image.generateDominantColorState()
         val dominantColor = animateColorAsState(
-        targetValue = Color(swatch.rgb),
-        animationSpec = tween(durationMillis = 1000),
-        label = "animateColorAsState CurrentTrackScreen"
-    )
+            targetValue = Color(swatch.rgb),
+            animationSpec = tween(durationMillis = 1000),
+            label = "animateColorAsState CurrentTrackScreen"
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -164,16 +162,16 @@ fun SongScreenBody(
         ) {
 
             SongScreenContent(
-                allSongs = homeUiState.songs!!,
+                allSongs = allSongs,
                 previousSong = previousSong,
                 currentSong = currentSong,
                 nextSong = nextSong,
                 dominantColor = dominantColor.value,
-                currentTime = musicControllerUiState.currentPosition,
-                totalTime = musicControllerUiState.totalDuration,
+                currentTime = currentPosition,
+                totalTime = totalDuration,
                 playPauseIcon = playPauseIcon,
                 playOrToggleSong = {
-                    onEvent(if (musicControllerUiState.playerState == PlayerState.PLAYING) SongEvent.PauseSong else SongEvent.ResumeSong)
+                    onEvent(if (playerState == PlayerState.PLAYING) SongEvent.PauseSong else SongEvent.ResumeSong)
                 },
                 playNextSong = { onEvent(SongEvent.SkipToNextSong) },
                 playPreviousSong = { onEvent(SongEvent.SkipToPreviousSong) },
@@ -185,76 +183,17 @@ fun SongScreenBody(
                     onEvent(SongEvent.SeekSongToPosition(newPosition.toLong()))
                 },
                 onForward = {
-                    onEvent(SongEvent.SeekSongToPosition(musicControllerUiState.currentPosition + 10 * 1000))
+                    onEvent(SongEvent.SeekSongToPosition(currentPosition + 10 * 1000))
                 },
                 onRewind = {
-                    musicControllerUiState.currentPosition.let { currentPosition ->
+                    currentPosition.let { currentPosition ->
                         onEvent(SongEvent.SeekSongToPosition(if (currentPosition - 10 * 1000 < 0) 0 else currentPosition - 10 * 1000))
                     }
                 },
                 onClose = onNavigateUp,
-                onSettingsClicked = {
-                    showSongSettings.value = true
-                },
-                onGotoArtistClick = {
-                    val author = homeUiState.artists!!.find { it.name == currentSong.artist }
-                    if (homeUiState.songs.contains(currentSong)) {
-                        navController.navigate("detail/artist/${author!!.id}")
-                    }
-
-                } ,
-                onGotoAlbumClick = {
-                    val album = homeUiState.albums!!.find { it.name == currentSong.album }
-                    if (homeUiState.songs.contains(currentSong)){
-                        navController.navigate("detail/album/${album!!.id}")
-                    }
-
-                },
-            )
-
-            SongSettingsItem(
-                homeUiState = homeUiState,
-                currentSong = musicControllerUiState.currentSong!!,
-                showSongSettings = showSongSettings,
-                showAddToPlaylistDialog = showAddToPlaylistDialog,
-                songSettingsItem = currentSong,
-                surfaceGradient = listOf(Color.Black, Color.Transparent),
-                onOkAddPlaylistClick = {newPlaylist ->
-
-                    val newSongList = newPlaylist.songList.toMutableList().apply { add(currentSong) }
-                    val resultList = newPlaylist.copy(
-                        songList = newSongList,
-                        artWork = currentSong.imageUrl.toUri()
-                    )
-                    onHomeEvent(HomeEvent.AddNewPlaylist(resultList))
-                    val toastText = context.getString(R.string.track_added_to_playlist, resultList.name)
-                    Toast.makeText(context,toastText, Toast.LENGTH_SHORT).show()
-                    showAddToPlaylistDialog.value = false
-
-                },
-                onPlaylistToAddSongChosen = {
-                    onHomeEvent(HomeEvent.AddNewPlaylist(it))
-                },
-                onDetailMenuItemClick = {menuItem, song ->
-                    showSongSettings.value = false
-
-                    when(menuItem) {
-                        context.getString(R.string.download) -> {}
-                        context.getString(R.string.add_to_playlist_variant)  -> showAddToPlaylistDialog.value = true
-                        context.getString(R.string.add_to_queue)  -> onHomeEvent(HomeEvent.AddSongListToQueue(listOf(song)))
-                        context.getString(R.string.play_next)  -> onHomeEvent(HomeEvent.AddSongNextToCurrentSong(song))
-                        context.getString(R.string.go_to_artist)  -> {
-                            val author = homeUiState.artists!!.find { it.name == song.artist }
-                            navController.navigate("detail/artist/${author!!.id}")
-                        }
-                        context.getString(R.string.go_to_album)  -> {
-                            val songItem = homeUiState.songs!!.find { it.songUrl == currentSong.songUrl }
-                            val album = homeUiState.albums!!.find { it.name == songItem!!.album }
-                            navController.navigate("detail/album/${album!!.id}")
-                        }
-
-                    }
-                }
+                onSettingsClicked = onSongListItemSettingsClick,
+                onGotoArtistClick = onGotoArtistClick,
+                onGotoAlbumClick = onGotoAlbumClick
             )
         }
 
@@ -280,7 +219,7 @@ fun SongScreenContent(
     onRewind: () -> Unit,
     onForward: () -> Unit,
     onClose: () -> Unit,
-    onSettingsClicked: () -> Unit,
+    onSettingsClicked: (song: Song) -> Unit,
     onGotoArtistClick: () -> Unit,
     onGotoAlbumClick: () -> Unit
 
@@ -321,7 +260,7 @@ fun SongScreenContent(
             delay(1000L)
             currentTrack.value = currentSong
         }
-        visible =true
+        visible = true
     }
 
     Box(
@@ -340,15 +279,31 @@ fun SongScreenContent(
                     .systemBarsPadding()
             ) {
                 Column {
-                    IconButton(
-                        onClick = onClose
-                    ) {
-                        Image(
-                            imageVector = Icons.Rounded.KeyboardArrowDown,
-                            contentDescription = "Close",
-                            colorFilter = ColorFilter.tint(LocalContentColor.current)
-                        )
+                    Row(modifier = Modifier
+                        .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                        .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center) {
+                        IconButton(
+                            onClick = onClose,
+                            colors = IconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.LightGray
+                            ),
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Icon(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape),
+                                imageVector = Icons.Default.KeyboardArrowDown,
+                                tint = MaterialTheme.colorScheme.onSurface,
+                                contentDescription = null
+                            )
+                        }
                     }
+
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -411,7 +366,8 @@ fun SongScreenContent(
                                 }
                                 CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant) {
                                     Text(
-                                        totalTime.toTime(), style = MaterialTheme.typography.bodyMedium
+                                        totalTime.toTime(),
+                                        style = MaterialTheme.typography.bodyMedium
                                     )
                                 }
                             }

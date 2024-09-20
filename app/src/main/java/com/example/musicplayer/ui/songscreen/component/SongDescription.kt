@@ -36,7 +36,7 @@ import com.example.musicplayer.ui.theme.typography
 fun SongDescription(
     allSongs: List<Song>,
     song: Song,
-    onSettingsClicked: () -> Unit,
+    onSettingsClicked: (song: Song) -> Unit,
     onGotoArtistClick: () -> Unit,
     onGotoAlbumClick: () -> Unit
 ) {
@@ -81,7 +81,7 @@ fun SongDescription(
                     disabledContentColor = Color.Gray,
                     disabledContainerColor = Color.Transparent
                 ),
-                onClick = onSettingsClicked,
+                onClick = { onSettingsClicked(song) },
                 contentPadding = PaddingValues(0.dp),
                 modifier = Modifier.size(36.dp)
             ) {

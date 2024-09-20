@@ -31,18 +31,6 @@ object SettingsKeys {
         }
     }
 
-    suspend fun saveRadioCountry(context: Context, country: String) {
-        context.dataStore.edit { settings ->
-            settings[SELECTED_RADIO_COUNTRY] = country
-        }
-    }
-
-    suspend fun saveRadioTag(context: Context, tag: String) {
-        context.dataStore.edit { settings ->
-            settings[SELECTED_RADIO_TAG] = tag
-        }
-    }
-
     @Composable
     fun isSystemDark(context: Context): Boolean {
         val settingsKey = context.dataStore.data

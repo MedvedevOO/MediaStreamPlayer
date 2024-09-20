@@ -1,9 +1,8 @@
-package com.example.musicplayer.ui.home.components
+package com.example.musicplayer.ui.sharedresources
 
 import android.media.MediaPlayer
 import android.net.Uri
 import android.widget.VideoView
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -19,7 +18,7 @@ import com.example.musicplayer.other.PlayerState
 
 fun BackgroundVideoPlayer(
     playerState: PlayerState?,
-    modifier: Modifier = Modifier.fillMaxHeight()
+    modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val videoUri = "android.resource://${context.packageName}/${R.raw.pulse_background}"

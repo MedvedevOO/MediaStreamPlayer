@@ -27,16 +27,6 @@ interface RadioBrowserApi {
         @Query("hidebroken") hideBroken: Boolean = true
     ): List<RadioStation>
 
-    @GET("json/countries")
-    suspend fun getCountryList(
-        @Query("hidebroken") hideBroken: Boolean = true
-    ): List<RadioCountry>
-
-    @GET("json/languages")
-    suspend fun getLanguageList(
-        @Query("hidebroken") hideBroken: Boolean = true
-    ): List<RadioLanguage>
-
     @GET("json/stations/search")
     suspend fun searchStations(
         @Query("name") name: String? = null,

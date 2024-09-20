@@ -16,11 +16,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.musicplayer.R
-import com.example.musicplayer.ui.home.HomeUiState
+import com.example.musicplayer.domain.model.Playlist
 
 @Composable
 fun RenamePlaylistDialog(
-    homeUiState: HomeUiState,
+    allPlaylists: List<Playlist>,
     showRenamePlaylist: MutableState<Boolean>,
     onOkClick: (newName: String) -> Unit) {
     if (showRenamePlaylist.value) {
@@ -33,7 +33,7 @@ fun RenamePlaylistDialog(
         )
         val errorText = stringResource(R.string.playlist_already_exists)
         val errorMessage = remember(newName.value) {
-            val allPlaylistNames: List<String> = homeUiState.playlists!!.map { it.name }
+            val allPlaylistNames: List<String> = allPlaylists.map { it.name }
 
             if (allPlaylistNames.contains(newName.value)) errorText else ""
         }

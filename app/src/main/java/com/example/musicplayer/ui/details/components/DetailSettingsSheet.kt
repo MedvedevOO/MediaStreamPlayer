@@ -55,9 +55,9 @@ import com.example.musicplayer.ui.theme.typography
 fun DetailSettingsSheet(
     content: Any,
     onDismiss: () -> Unit,
-    onDetailMenuItemClick: (menuItem: String, playlistName: String) -> Unit
+    onDetailMenuItemClick: (menuItem: String, playlistId: Int) -> Unit
 ) {
-    var playlistName = ""
+    var playlistId = 0
     val menuItems = when(content) {
 
         is Playlist -> {
@@ -81,7 +81,7 @@ fun DetailSettingsSheet(
                     remove(stringResource(R.string.edit))
                 }
             }.also {
-                playlistName = content.name
+                playlistId = content.id
             }
 
         }
@@ -111,7 +111,7 @@ fun DetailSettingsSheet(
                 item { DetailMenuItem(
                     item = menuItem.toPair(),
                     onItemClick = {name ->
-                        onDetailMenuItemClick(name, playlistName)
+                        onDetailMenuItemClick(name, playlistId)
                     }
                 )
                 }

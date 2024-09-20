@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
-import androidx.navigation.NavController
 import com.example.musicplayer.R
 import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.SettingsKeys
@@ -28,7 +27,6 @@ import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Artist
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.details.components.AnimatedGradientBackgroundBox
 import com.example.musicplayer.ui.details.components.AnimatedToolBar
@@ -36,8 +34,6 @@ import com.example.musicplayer.ui.details.components.BottomScrollableContent
 import com.example.musicplayer.ui.details.components.DetailSettingsSheet
 import com.example.musicplayer.ui.details.components.RenamePlaylistDialog
 import com.example.musicplayer.ui.details.components.TopSectionOverlay
-import com.example.musicplayer.ui.home.HomeEvent
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.sharedresources.albumCoverImage
 import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 
@@ -45,14 +41,15 @@ import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
 fun DetailScreen(
-    homeUiState: HomeUiState,
-    onEvent: (HomeEvent) -> Unit,
-    navController: NavController,
-    musicControllerUiState: MusicControllerUiState,
+    uiState: DetailScreenUiState,
+    onEvent: (DetailScreenEvent) -> Unit,
     content: Any,
     onNavigateUp: () -> Unit,
-    onAlbumCardClick: (album: Album) -> Unit,
-    onAddTracksClick: (playlist: Playlist) -> Unit
+    onAlbumCardClick: (albumId: Int) -> Unit,
+    onAddTracksClick: (playlistId: Int) -> Unit,
+    onEditPlayListClick: (playlistId: Int) -> Unit,
+    onDeletePlaylistClick: () -> Unit,
+    onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
@@ -70,23 +67,21 @@ fun DetailScreen(
 
     when(content) {
         is Playlist -> {
-            val playList = homeUiState.playlists!!.first{it.id == content.id}
-            contentName.value = playList.name
-            contentArtworkUri = if (playList.id > 2) {
-                playList.songList.first().imageUrl.toUri()
+            contentName.value = content.name
+            contentArtworkUri = if (content.id > 2 && content.songList.isNotEmpty()) {
+                content.songList.first().imageUrl.toUri()
             } else {
-                playList.artWork
+                content.artWork
             }
-            songList = playList.songList.toMutableStateList()
+            songList = content.songList.toMutableStateList()
             description = stringResource(R.string.tracks, songList.size)
-            newPlaylist = playList
+            newPlaylist = content
         }
         is Artist -> {
-            val artist = homeUiState.artists!![content.id]
-            contentName.value = artist.name
-            contentArtworkUri = artist.photo.toUri()
-            songList = artist.songList.toMutableStateList()
-            albumsList = artist.albumList
+            contentName.value = content.name
+            contentArtworkUri = content.photo.toUri()
+            songList = content.songList.toMutableStateList()
+            albumsList = content.albumList
             description = stringResource(R.string.albums_tracks, albumsList.size, songList.size)
             newPlaylist = Playlist(
                 id = content.id,
@@ -97,12 +92,11 @@ fun DetailScreen(
 
         }
         is Album -> {
-            val album = homeUiState.albums!![content.id.toInt()]
-            contentName.value = album.name
-            contentArtworkUri = album.albumCover.toUri()
-            songList = album.songList.toMutableStateList()
-            description = stringResource(R.string.album_by, album.artist)
-            newPlaylist =  Playlist(
+            contentName.value = content.name
+            contentArtworkUri = content.albumCover.toUri()
+            songList = content.songList.toMutableStateList()
+            description = stringResource(R.string.album_by, content.artist)
+            newPlaylist = Playlist(
                 id = content.id.toInt(),
                 name = contentName.value,
                 songList = songList,
@@ -112,18 +106,18 @@ fun DetailScreen(
     }
 
     val onPlayButtonClickLambda = {
-        if (homeUiState.selectedPlaylist!!.name == contentName.value){
-            if (musicControllerUiState.playerState == PlayerState.PLAYING){
-                onEvent(HomeEvent.PauseSong)
-            } else if(homeUiState.selectedSong != null){
-                onEvent(HomeEvent.ResumeSong)
+        if (uiState.selectedPlaylist!!.name == contentName.value){
+            if (uiState.playerState == PlayerState.PLAYING){
+                onEvent(DetailScreenEvent.PauseSong)
+            } else if(uiState.selectedSong != null){
+                onEvent(DetailScreenEvent.ResumeSong)
             } else {
-                onEvent(HomeEvent.OnSongSelected(songList[0]))
-                onEvent(HomeEvent.ResumeSong)
+                onEvent(DetailScreenEvent.OnSongSelected(songList[0]))
+                onEvent(DetailScreenEvent.ResumeSong)
 
             }
         } else {
-            onEvent(HomeEvent.OnPlaylistChange(newPlaylist!!))
+            onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
         }
     }
 
@@ -153,38 +147,37 @@ fun DetailScreen(
             )
 
             BottomScrollableContent(
-                homeUiState = homeUiState,
+                uiState = uiState,
                 onEvent = onEvent,
-                navController = navController,
-                musicControllerUiState = musicControllerUiState,
                 contentName = contentName.value,
                 songList = songList,
                 albumsList = albumsList,
                 scrollState = scrollState,
                 showSettings = showSettings,
                 onSongListItemClick = {
-                    if (homeUiState.selectedPlaylist!!.songList == songList){
-                        onEvent(HomeEvent.OnSongSelected(it))
-                        onEvent(HomeEvent.PlaySong)
+                    if (uiState.selectedPlaylist!!.songList == songList){
+                        onEvent(DetailScreenEvent.OnSongSelected(it))
+                        onEvent(DetailScreenEvent.PlaySong)
                     } else {
-                        onEvent(HomeEvent.OnPlaylistChange(newPlaylist!!))
+                        onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
                     } },
-                onSongListItemLikeClick ={ onEvent(HomeEvent.OnSongLikeClick(it))},
+                onSongListItemLikeClick ={ onEvent(DetailScreenEvent.OnSongLikeClick(it))},
                 onPlayButtonClick = onPlayButtonClickLambda,
                 onShuffleClick = {
                     newPlaylist = newPlaylist!!.copy(
                         name = shuffledName,
                         songList = songList.shuffled()
                     )
-                    onEvent(HomeEvent.OnPlaylistChange(newPlaylist!!))
+                    onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
                 },
                 onAlbumCardClick = onAlbumCardClick,
-                onAddTracksClick = onAddTracksClick
+                onAddTracksClick = onAddTracksClick,
+                onSongListItemSettingsClick = onSongListItemSettingsClick
             )
             AnimatedToolBar(
                 contentName = contentName.value,
-                selectedPlaylist = homeUiState.selectedPlaylist!!,
-                playerState = musicControllerUiState.playerState!!,
+                selectedPlaylist = uiState.selectedPlaylist!!,
+                playerState = uiState.playerState,
                 scrollState = scrollState,
                 surfaceGradient = surfaceGradient,
                 onNavigateUp = onNavigateUp,
@@ -198,30 +191,26 @@ fun DetailScreen(
                 DetailSettingsSheet(
                     content = content,
                     onDismiss = {showSettings.value = false },
-                    onDetailMenuItemClick = { menuItem, playlistName ->
+                    onDetailMenuItemClick = { menuItem, playlistId ->
                         showSettings.value = false
                         when(menuItem) {
 
                             DataProvider.getString(R.string.download) -> { }
                             DataProvider.getString(R.string.play_next) -> {
-                                onEvent(HomeEvent.AddSongListNextToCurrentSong(songList))
+                                onEvent(DetailScreenEvent.AddSongListNextToCurrentSong(songList))
                             }
                             DataProvider.getString(R.string.add_to_queue) -> {
-                                onEvent(HomeEvent.AddSongListToQueue(songList))
+                                onEvent(DetailScreenEvent.AddSongListToQueue(songList))
                             }
-                            DataProvider.getString(R.string.edit) -> {
-                                navController.navigate("editPlaylist/$playlistName")
-                            }
+                            DataProvider.getString(R.string.edit) -> onEditPlayListClick(playlistId)
                             DataProvider.getString(R.string.rename) -> {
                                 showRenamePlaylist.value = true
 
                             }
-                            DataProvider.getString(R.string.add_tracks) -> {
-                                navController.navigate("addSongs/${playlistName}")
-                            }
+                            DataProvider.getString(R.string.add_tracks) -> onAddTracksClick(playlistId)
                             DataProvider.getString(R.string.delete_playlist) -> {
-                                navController.popBackStack()
-                                onEvent(HomeEvent.DeletePlaylist(content as Playlist))
+                                onDeletePlaylistClick()
+                                onEvent(DetailScreenEvent.DeletePlaylist(contentName.value))
                             }
                         }
 
@@ -231,11 +220,11 @@ fun DetailScreen(
             }
 
             RenamePlaylistDialog(
-                homeUiState = homeUiState,
+                allPlaylists = uiState.playlists!!,
                 showRenamePlaylist = showRenamePlaylist
             ) {newName ->
                 contentName.value = newName
-                onEvent(HomeEvent.RenamePlaylist(newPlaylist!!.id, newName))
+                onEvent(DetailScreenEvent.RenamePlaylist(newPlaylist!!.id, newName))
                 showRenamePlaylist.value = false
             }
         }

@@ -5,17 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.SideEffect
-import androidx.compose.ui.graphics.Color
-import com.example.musicplayer.data.DataProvider
-import com.example.musicplayer.data.localdatabase.MusicPlayerDatabase
 import com.example.musicplayer.data.service.MusicService
 import com.example.musicplayer.ui.MusicPlayerApp
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.example.musicplayer.ui.viewmodels.SharedViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -40,10 +34,6 @@ class MainActivity : ComponentActivity() {
 
         sharedViewModel.destroyMediaController()
         stopService(Intent(this, MusicService::class.java))
-    }
-
-    override fun onResume() {
-        super.onResume()
     }
 }
 

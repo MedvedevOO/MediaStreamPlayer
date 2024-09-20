@@ -1,12 +1,9 @@
 package com.example.musicplayer.data.localdatabase
 
 import android.net.Uri
-import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.toMutableStateList
 import androidx.core.net.toUri
 import com.example.musicplayer.data.DataProvider
-import com.example.musicplayer.data.localdatabase.entities.SongLocation
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.RadioStation
 import com.example.musicplayer.domain.model.Song
@@ -19,11 +16,14 @@ import java.io.File
 class DatabaseHelper {
     private val musicPlayerDatabase: MusicPlayerDatabase = MusicPlayerDatabase.getDatabase()!!
 
-    suspend fun addSongsToDatabase(songs: List<Song>, location: SongLocation) {
-        var songLocation = location
-        val songsFromDB = musicPlayerDatabase.songDao().getAllSongs()
-        // Check if the list of songs is empty
-        // Iterate through the list of songs
+    suspend fun addSongsToDatabase(songs: List<Song>) {
+
+        musicPlayerDatabase.songDao().getAllSongs().forEach {songFromDB ->
+            if (!songs.contains(songFromDB)) {
+                musicPlayerDatabase.songDao().deleteSong(songFromDB)
+            }
+        }
+        val songsFromDB = musicPlayerDatabase.songDao().getAllSongs().toMutableList()
         songs.forEach { song ->
             // Check if the song already exists in the database
             if (songsFromDB.isEmpty()) {
@@ -40,14 +40,20 @@ class DatabaseHelper {
 
     private suspend fun getRecentSongs(): Playlist {
         val oneWeekAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)
-        val recentlyAddedSongList = musicPlayerDatabase.songDao().getSongsNewerThanOneWeek(oneWeekAgo)
-        val recentlyAddedSongsArtwork: Uri = if(recentlyAddedSongList.isNotEmpty()) {
-            recentlyAddedSongList[0].imageUrl.toUri()} else {
-                DataProvider.getDefaultCover()
+        val recentlyAddedSongList =
+            musicPlayerDatabase.songDao().getSongsNewerThanOneWeek(oneWeekAgo)
+        val recentlyAddedSongsArtwork: Uri = if (recentlyAddedSongList.isNotEmpty()) {
+            recentlyAddedSongList[0].imageUrl.toUri()
+        } else {
+            DataProvider.getDefaultCover()
         }
         println("RECENT SONGS: $recentlyAddedSongList")
-        val recentlyAddedPlaylist = Playlist(1, DataProvider.getRecentlyAddedName(), recentlyAddedSongList, recentlyAddedSongsArtwork)
-        return recentlyAddedPlaylist
+        return Playlist(
+            1,
+            DataProvider.getRecentlyAddedName(),
+            recentlyAddedSongList,
+            recentlyAddedSongsArtwork
+        )
     }
 
 
@@ -66,8 +72,6 @@ class DatabaseHelper {
 
     suspend fun getAllPlaylists(allSongsList: List<Song>): List<Playlist> {
         val allSongsPlaylist = Playlist(0, DataProvider.getAllTracksName(), allSongsList, DataProvider.getAllTracksCover())
-
-        val recentlyAddedMock = Playlist(1, DataProvider.getRecentlyAddedName(), allSongsList.filter { it.timestamp > (System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000)) }, allSongsList[0].imageUrl.toUri())
         val recentlyAddedPlaylist = getRecentSongs()
         val favorites = Playlist(2, DataProvider.getFavoritesName(), emptyList(), DataProvider.getFavoritesCover())
 
@@ -162,6 +166,17 @@ class DatabaseHelper {
     }
 
     suspend fun updateFavoriteRadioStations(newRadioList: List<RadioStation>) {
-        musicPlayerDatabase.radioStationDao().insertRadioList(newRadioList)
+        val stationsInDB = getFavoriteRadioStations()
+        stationsInDB.forEach { stationInDB ->
+            if (!newRadioList.contains(stationInDB))
+                musicPlayerDatabase.radioStationDao().delete(stationInDB)
+        }
+        val listToAddToDB = mutableListOf<RadioStation>()
+        newRadioList.forEach {radioStation ->
+            if (!stationsInDB.contains(radioStation)) {
+                listToAddToDB.add(radioStation)
+            }
+        }
+        musicPlayerDatabase.radioStationDao().insertRadioList(listToAddToDB)
     }
 }

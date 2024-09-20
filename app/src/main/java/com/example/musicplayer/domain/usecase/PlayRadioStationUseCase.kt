@@ -1,7 +1,6 @@
 package com.example.musicplayer.domain.usecase
 
 import com.example.musicplayer.domain.model.RadioStation
-import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.domain.service.MusicController
 import javax.inject.Inject
 

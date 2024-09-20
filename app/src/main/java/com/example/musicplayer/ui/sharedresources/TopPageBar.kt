@@ -1,5 +1,6 @@
 package com.example.musicplayer.ui.sharedresources
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -38,17 +39,20 @@ fun TopPageBar(pageName: Int, showAppSettings: MutableState<Boolean>) {
         disabledContainerColor = Color.Gray,
         disabledContentColor = Color.LightGray
     )
-    Box(modifier = Modifier.fillMaxWidth()) {
+
+    Box(modifier = Modifier.fillMaxWidth().background(
+        MaterialTheme.colorScheme.background.copy(alpha = 0.5f)
+    )) {
         Row(
             horizontalArrangement = Arrangement.Start,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = stringResource(pageName),
-                style = typography.displaySmall.copy(fontWeight = FontWeight.Bold, fontSize = 24.sp),
+                style = typography.headlineMedium.copy(fontWeight = FontWeight.Bold, fontSize = 24.sp),
                 textAlign = TextAlign.Start,
                 modifier = Modifier
-                    .padding(16.dp)
+                    .padding(8.dp)
             )
         }
 
@@ -56,7 +60,7 @@ fun TopPageBar(pageName: Int, showAppSettings: MutableState<Boolean>) {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .padding(horizontal = 8.dp, vertical = 16.dp)
+                .padding(8.dp)
                 .fillMaxWidth()
         ) {
 //            IconButton(
@@ -80,7 +84,7 @@ fun TopPageBar(pageName: Int, showAppSettings: MutableState<Boolean>) {
             IconButton(
                 onClick = { showAppSettings.value = !showAppSettings.value },
                 colors= colors,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(36.dp)
             ) {
                 Icon(
                     modifier = Modifier

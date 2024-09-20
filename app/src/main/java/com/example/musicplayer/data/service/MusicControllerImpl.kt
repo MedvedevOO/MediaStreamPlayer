@@ -9,24 +9,38 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
+import com.example.musicplayer.R
+import com.example.musicplayer.data.DataProvider
+import com.example.musicplayer.data.mapper.toMediaItem
 import com.example.musicplayer.data.mapper.toSong
+import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.RadioStation
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.domain.service.MusicController
 import com.example.musicplayer.other.PlayerState
+import com.example.musicplayer.other.Resource
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 
 class MusicControllerImpl(context: Context) : MusicController {
     private lateinit var mediaItems: List<MediaItem>
     private var mediaControllerFuture: ListenableFuture<MediaController>
+    private val selectedPlaylistFlow = MutableStateFlow<Resource<Playlist>>(Resource.Loading())
+    private val selectedSongFlow = MutableStateFlow<Resource<Song?>>(Resource.Loading())
+    private val playerStateFlow = MutableStateFlow(PlayerState.STOPPED)
     private val mediaController: MediaController?
         get() = if (mediaControllerFuture.isDone) mediaControllerFuture.get() else null
     private val pendingMediaItems = mutableListOf<MediaItem>()
     override var mediaControllerCallback: (
         (
         playerState: PlayerState,
+        currentPlaylist: Playlist?,
         previousMusic: Song?,
         currentMusic: Song?,
         nextMusic: Song?,
@@ -55,33 +69,24 @@ class MusicControllerImpl(context: Context) : MusicController {
         mediaController?.addListener(object : Player.Listener {
             override fun onEvents(player: Player, events: Player.Events) {
                 super.onEvents(player, events)
-
-                if (events.contains(Player.EVENT_PLAYBACK_STATE_CHANGED)) {
-                    // Playback state has changed (e.g., PLAY, PAUSE)
-                    Log.d("PlayerListener", "Playback state changed to: ${player.playbackState}")
+                val currentSong = player.currentMediaItem?.toSong()
+                val playerState = player.playbackState.toPlayerState(player.isPlaying)
+                CoroutineScope(Dispatchers.IO).launch {
+                    selectedSongFlow.emit(Resource.Loading())
+                    selectedSongFlow.emit(Resource.Success(currentSong))
+                    playerStateFlow.emit(playerState)
                 }
-
-                if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
-                    // isPlaying changed (e.g., player started or stopped playing)
-                    Log.d("PlayerListener", "Is playing: ${player.isPlaying}")
-                }
-
-                if (events.contains(Player.EVENT_MEDIA_ITEM_TRANSITION)) {
-                    // Media item has changed (e.g., next song in playlist)
-                    Log.d("PlayerListener", "Media item changed: ${player.currentMediaItem?.mediaId}")
-                }
-
-                if (events.contains(Player.EVENT_POSITION_DISCONTINUITY)) {
-                    // Playback position has changed unexpectedly (e.g., seeking, skipping)
-                    Log.d("PlayerListener", "Position discontinuity: ${player.currentPosition}")
-                }
-
                 with(player) {
                     mediaControllerCallback?.invoke(
                         playbackState.toPlayerState(isPlaying),
-                        if (hasPreviousMediaItem()) {getMediaItemAt(previousMediaItemIndex).toSong()} else null,
+                        selectedPlaylistFlow.value.data,
+                        if (hasPreviousMediaItem()) {
+                            getMediaItemAt(previousMediaItemIndex).toSong()
+                        } else null,
                         currentMediaItem?.toSong(),
-                        if (hasNextMediaItem()) {getMediaItemAt(nextMediaItemIndex).toSong()} else null,
+                        if (hasNextMediaItem()) {
+                            getMediaItemAt(nextMediaItemIndex).toSong()
+                        } else null,
                         currentPosition.coerceAtLeast(0L),
                         duration.coerceAtLeast(0L),
                         shuffleModeEnabled,
@@ -99,20 +104,11 @@ class MusicControllerImpl(context: Context) : MusicController {
             else -> if (isPlaying) PlayerState.PLAYING else PlayerState.PAUSED
         }
 
-    override fun addMediaItems(songs: List<Song>) {
+
+        override fun addMediaItems(songs: List<Song>) {
+
         mediaItems = songs.map { song ->
-            MediaItem.Builder()
-                .setMediaId(song.songUrl)
-                .setUri(song.songUrl)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(song.title)
-                        .setSubtitle(song.artist)
-                        .setArtist(song.artist)
-                        .setArtworkUri(Uri.parse(song.imageUrl))
-                        .build()
-                )
-                .build()
+            song.toMediaItem()
         }
 
         if (mediaController != null) {
@@ -122,6 +118,13 @@ class MusicControllerImpl(context: Context) : MusicController {
         } else {
             pendingMediaItems.addAll(mediaItems)
         }
+    }
+
+    override fun setPlaylist(playlist: Playlist) {
+        CoroutineScope(Dispatchers.IO).launch {
+            selectedPlaylistFlow.emit(Resource.Success(playlist))
+        }
+        addMediaItems(playlist.songList)
     }
 
 
@@ -135,6 +138,7 @@ class MusicControllerImpl(context: Context) : MusicController {
 
         }
     }
+
     override fun play(mediaItemIndex: Int) {
         mediaController?.apply {
             seekToDefaultPosition(mediaItemIndex)
@@ -154,26 +158,34 @@ class MusicControllerImpl(context: Context) : MusicController {
 
     override fun getCurrentPosition(): Long = mediaController?.currentPosition ?: 0L
 
-    override fun getCurrentSong(): Song? = mediaController?.currentMediaItem?.toSong()
+    override fun getCurrentSong(): Flow<Resource<Song?>> = selectedSongFlow
+
+    override fun getCurrentPlaylist(): Flow<Resource<Playlist>> = selectedPlaylistFlow
+
+    override fun getPlayerState(): Flow<PlayerState> = playerStateFlow
 
     override fun seekTo(position: Long) {
         mediaController?.seekTo(position)
     }
 
+    private fun createMixPlaylist() {
+        val songs = mediaItems.map { it.toSong() }
+        val updatedPlaylist = Playlist(
+            id = -2,
+            name = DataProvider.getString(R.string.mix),
+            songList = songs,
+            artWork = Uri.EMPTY
+        )
+
+        CoroutineScope(Dispatchers.IO).launch {
+            selectedPlaylistFlow.emit(Resource.Loading())
+            selectedPlaylistFlow.emit(Resource.Success(updatedPlaylist))
+        }
+
+    }
     override fun addSongNextToCurrentPosition(song: Song) {
         val newIndex = mediaController?.currentMediaItemIndex?.plus(1)
-        val additionalMediaItem = MediaItem.Builder()
-            .setMediaId(song.songUrl)
-            .setUri(song.songUrl)
-            .setMediaMetadata(
-                MediaMetadata.Builder()
-                    .setTitle(song.title)
-                    .setSubtitle(song.artist)
-                    .setArtist(song.artist)
-                    .setArtworkUri(Uri.parse(song.imageUrl))
-                    .build()
-            )
-            .build()
+        val additionalMediaItem = song.toMediaItem()
 
         if (mediaItems.contains(additionalMediaItem)) {
             val songIndex = mediaItems.indexOf(additionalMediaItem)
@@ -188,25 +200,16 @@ class MusicControllerImpl(context: Context) : MusicController {
                 add(newIndex!!, additionalMediaItem)
             }
             mediaItems = newMediaItems
+
             mediaController?.addMediaItems(newIndex!!, listOf(additionalMediaItem))
         }
+        createMixPlaylist()
     }
 
     override fun addSongsNextToCurrentPosition(songList: List<Song>) {
         val index = mediaController?.currentMediaItemIndex?.plus(1)
         val additionalMediaItems = songList.map { song ->
-            MediaItem.Builder()
-                .setMediaId(song.songUrl)
-                .setUri(song.songUrl)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(song.title)
-                        .setSubtitle(song.artist)
-                        .setArtist(song.artist)
-                        .setArtworkUri(Uri.parse(song.imageUrl))
-                        .build()
-                )
-                .build()
+            song.toMediaItem()
         }.toMutableList()
 
         val iterator = additionalMediaItems.iterator()
@@ -220,27 +223,13 @@ class MusicControllerImpl(context: Context) : MusicController {
             addAll(index!!, additionalMediaItems)
         }
         mediaItems = newMediaItems
-
-        mediaController?.addMediaItems(index!!,additionalMediaItems)
+        mediaController?.addMediaItems(index!!, additionalMediaItems)
+        createMixPlaylist()
     }
 
     override fun addSongsToQueue(songList: List<Song>) {
         val additionalMediaItems = songList.map { song ->
-            MediaItem.Builder()
-                .setMediaId(song.songUrl)
-                .setUri(song.songUrl)
-                .setMediaMetadata(
-                    MediaMetadata.Builder()
-                        .setTitle(song.title)
-                        .setSubtitle(song.artist)
-                        .setArtist(song.artist)
-                        .setAlbumTitle(song.album)
-                        .setGenre(song.genre)
-                        .setReleaseYear(song.year.toInt())
-                        .setArtworkUri(Uri.parse(song.imageUrl))
-                        .build()
-                )
-                .build()
+            song.toMediaItem()
         }.toMutableList()
 
         val iterator = additionalMediaItems.iterator()
@@ -254,23 +243,23 @@ class MusicControllerImpl(context: Context) : MusicController {
             addAll(additionalMediaItems)
         }
         mediaItems = newMediaItems
-
         mediaController?.addMediaItems(additionalMediaItems)
+        createMixPlaylist()
     }
 
     override fun playRadioStation(radioStation: RadioStation) {
-       val mediaItem = MediaItem.Builder()
-           .setMediaId(radioStation.url)
-           .setUri(radioStation.url)
-           .setMediaMetadata(
-               MediaMetadata.Builder()
-                   .setTitle(radioStation.name)
-                   .setSubtitle(radioStation.country)
-                   .setArtist(radioStation.country)
-                   .setArtworkUri(Uri.parse(radioStation.favicon))
-                   .build()
-           )
-           .build()
+        val mediaItem = MediaItem.Builder()
+            .setMediaId(radioStation.url)
+            .setUri(radioStation.url)
+            .setMediaMetadata(
+                MediaMetadata.Builder()
+                    .setTitle(radioStation.name)
+                    .setSubtitle(radioStation.country)
+                    .setArtist(radioStation.country)
+                    .setArtworkUri(Uri.parse(radioStation.favicon))
+                    .build()
+            )
+            .build()
 
         if (mediaController != null) {
             mediaController?.clearMediaItems()

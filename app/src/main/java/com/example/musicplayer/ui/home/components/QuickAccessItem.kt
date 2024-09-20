@@ -55,7 +55,7 @@ fun QuickAccessItem(
     Row(modifier = Modifier
         .height(64.dp)
         .width(230.dp)
-        .padding(5.dp)
+        .padding(8.dp)
         .clip(CircleShape)
         .background(MaterialTheme.colorScheme.background.copy(alpha = 0.3f))
         .clickable {

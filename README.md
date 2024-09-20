@@ -6,6 +6,11 @@
 
 Music Player is an Android application created for playing with Jetpack Compose framework and ExoPlayer.
 
+## Result
+
+### Dark/Light Mode and Notification
+| ![list](previews/darkList.png) | ![player](previews/darkPlayer.png) |![list](previews/lightList.png) |![player](previews/lightPlayer.png) | ![notification](previews/notificationPlayer.png) |
+|----------|:----------:|:--------:|:---------:|:---------:|
 
 ## Tech stack & Open-source libraries
 

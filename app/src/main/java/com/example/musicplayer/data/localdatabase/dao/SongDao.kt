@@ -29,9 +29,6 @@ interface SongDao {
     @Query("SELECT * FROM songs WHERE artist = :artistName AND title = :songTitle LIMIT 1")
     fun getSongByArtistAndTitle(artistName: String, songTitle: String): Song?
 
-//    @Query("SELECT * FROM songs WHERE location = :location")
-//    suspend fun getSongsByLocation(location: SongLocation): List<Song>
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSong(song: Song)
 

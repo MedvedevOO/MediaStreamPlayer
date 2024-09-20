@@ -2,8 +2,6 @@ package com.example.musicplayer.data.repository
 
 import com.example.musicplayer.data.localdatabase.DatabaseHelper
 import com.example.musicplayer.data.retrofitinstance.RetrofitInstance
-import com.example.musicplayer.domain.model.RadioCountry
-import com.example.musicplayer.domain.model.RadioLanguage
 import com.example.musicplayer.domain.model.RadioStation
 
 class RadioRepository {
@@ -27,22 +25,6 @@ class RadioRepository {
     suspend fun getRecentlyChangedStations(count: Int): List<RadioStation> {
         return try {
             RetrofitInstance.api.getRecentlyChangedStations(count)
-        } catch (e: Exception) {
-            emptyList() // Handle the error gracefully
-        }
-    }
-
-    suspend fun getCountryList(): List<RadioCountry> {
-        return try {
-            RetrofitInstance.api.getCountryList()
-        } catch (e: Exception) {
-            emptyList() // Handle the error gracefully
-        }
-    }
-
-    suspend fun getLanguageList(): List<RadioLanguage> {
-        return try {
-            RetrofitInstance.api.getLanguageList()
         } catch (e: Exception) {
             emptyList() // Handle the error gracefully
         }

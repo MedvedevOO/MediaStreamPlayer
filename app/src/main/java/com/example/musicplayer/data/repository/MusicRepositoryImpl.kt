@@ -4,8 +4,11 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentUris
 import android.content.Context
+import android.database.ContentObserver
 import android.database.Cursor
 import android.net.Uri
+import android.os.Handler
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import com.example.musicplayer.R
@@ -13,7 +16,6 @@ import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.dto.SongDto
 import com.example.musicplayer.data.localdatabase.DatabaseHelper
 import com.example.musicplayer.data.localdatabase.MusicPlayerDatabase
-import com.example.musicplayer.data.localdatabase.entities.SongLocation
 import com.example.musicplayer.data.mapper.toSong
 import com.example.musicplayer.data.remotedatabase.MusicRemoteDatabase
 import com.example.musicplayer.domain.model.Album
@@ -22,12 +24,10 @@ import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.domain.repository.MusicRepository
 import com.example.musicplayer.other.Resource
-import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
@@ -36,16 +36,29 @@ class MusicRepositoryImpl @Inject constructor(
     private val musicRemoteDatabase: MusicRemoteDatabase
 ) :
     MusicRepository {
+
     private var allSongsList: List<Song> = emptyList()
     private var allPlaylists: List<Playlist> = emptyList()
     private var allArtists: List<Artist> = emptyList()
     private var allAlbums: List<Album> = emptyList()
+    private var contentObserver: ContentObserver
 
     init {
         DataProvider.init(context)
         MusicPlayerDatabase.getDatabase(context)
-    }
+        contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+            override fun onChange(selfChange: Boolean) {
+                super.onChange(selfChange)
+                getSongs()
 
+            }
+        }
+        context.contentResolver.registerContentObserver(
+            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            true,
+            contentObserver
+        )
+    }
 
     override fun getSongs() =
         flow {
@@ -54,7 +67,7 @@ class MusicRepositoryImpl @Inject constructor(
             val allSongs = mutableListOf<SongDto>()
             allSongs.addAll(songs)
             allSongsList = allSongs.map { it.toSong() }
-            DatabaseHelper().addSongsToDatabase(allSongsList,SongLocation.DEVICE)
+            DatabaseHelper().addSongsToDatabase(allSongsList)
             if (allSongsList.isNotEmpty()) {
                 emit(Resource.Success(allSongsList))
             }
@@ -87,6 +100,26 @@ class MusicRepositoryImpl @Inject constructor(
 
         }
 
+    override fun getAlbumIdByName(name: String): Int? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getArtistIdByName(name: String): Int? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAlbumById(id: Int): Album? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getArtistById(id: Int): Artist? {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPlaylistById(id: Int): Playlist? {
+        TODO("Not yet implemented")
+    }
+
     override fun addOrRemoveFavoriteSong(song: Song) {
         allPlaylists[2].songList = DatabaseHelper().putOrRemoveFromFavorites(song, allPlaylists[2])
     }
@@ -104,10 +137,10 @@ class MusicRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun renamePlaylist(playlist: Playlist) {
-        CoroutineScope(Dispatchers.IO).launch {
-            DatabaseHelper().writeSinglePlayListToDB(playlist)
-        }
+    override fun renamePlaylist(id: Int, name: String) {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            DatabaseHelper().writeSinglePlayListToDB(playlist)
+//        }
     }
 
     private fun createSongFromCursor(cursor: Cursor): SongDto {
@@ -142,7 +175,7 @@ class MusicRepositoryImpl @Inject constructor(
         }
 
         return SongDto(
-            mediaId = id.toString(),
+            mediaId = contentUri.toString(),
             title = title,
             artist = artist,
             album = album,

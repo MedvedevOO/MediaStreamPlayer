@@ -1,42 +1,46 @@
-package com.example.musicplayer.ui.viewmodels
+package com.example.musicplayer.ui.radio
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.musicplayer.data.DataProvider
+import com.example.musicplayer.data.mapper.toSong
+import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.RadioStation
-import com.example.musicplayer.domain.usecase.GetCountryListUseCase
+import com.example.musicplayer.domain.model.Song
+import com.example.musicplayer.domain.usecase.GetCurrentPlaylistUseCase
 import com.example.musicplayer.domain.usecase.GetFavoriteStationsUseCase
-import com.example.musicplayer.domain.usecase.GetLanguageListUseCase
 import com.example.musicplayer.domain.usecase.GetRecentlyChangedRadioStationsUseCase
 import com.example.musicplayer.domain.usecase.GetTopRadioStationsUseCase
 import com.example.musicplayer.domain.usecase.GetTopRatedRadioStationsUseCase
+import com.example.musicplayer.domain.usecase.PlaySongUseCase
+import com.example.musicplayer.domain.usecase.SetPlaylistUseCase
 import com.example.musicplayer.domain.usecase.UpdateFavoriteStationsUseCase
-import com.example.musicplayer.ui.radio.RadioEvent
-import com.example.musicplayer.ui.radio.RadioUiState
+import com.example.musicplayer.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class RadioViewModel @Inject constructor(
+    private val getCurrentPlaylistUseCase: GetCurrentPlaylistUseCase,
     private val getTopRadioStationsUseCase: GetTopRadioStationsUseCase,
     private val getTopRatedRadioStationsUseCase: GetTopRatedRadioStationsUseCase,
     private val getRecentlyChangedRadioStationsUseCase: GetRecentlyChangedRadioStationsUseCase,
-    private val getCountryListUseCase: GetCountryListUseCase,
-    private val getLanguageListUseCase: GetLanguageListUseCase,
     private val getFavoriteStationsUseCase: GetFavoriteStationsUseCase,
-    private val updateFavoriteStationsUseCase: UpdateFavoriteStationsUseCase
+    private val updateFavoriteStationsUseCase: UpdateFavoriteStationsUseCase,
+    private val setPlaylistUseCase: SetPlaylistUseCase,
+    private val playSongUseCase: PlaySongUseCase
 ) : ViewModel() {
 
     var radioUiState by mutableStateOf(RadioUiState())
         private set
 
     init {
-        getCountryList()
-        getLanguageList()
         getFavoriteStations()
+        observeSelectedPlaylist()
     }
 
 
@@ -51,14 +55,32 @@ class RadioViewModel @Inject constructor(
 
             RadioEvent.FetchRecentlyChangedStations -> getRecentlyChangedRadioStations(200)
 
-            RadioEvent.FetchCountryList -> getCountryList()
-
-            RadioEvent.FetchLanguageList -> getLanguageList()
-
             is RadioEvent.OnRadioLikeClick -> addOrRemoveFromFavorites(event.radioStation)
+            is RadioEvent.PlayRadio -> playRadio(event.radioStation, event.radioList)
+        }
+    }
+
+    private fun observeSelectedPlaylist() {
+        viewModelScope.launch {
+            getCurrentPlaylistUseCase.invoke().collect { resource ->
+                radioUiState = when (resource) {
+                    is Resource.Success -> radioUiState.copy(
+                        loading = false,
+                        selectedPlaylist = resource.data
+                    )
+
+                    is Resource.Loading -> radioUiState.copy(
+                        loading = true
+                    )
+
+                    is Resource.Error -> radioUiState.copy(
+                        loading = false,
+                        errorMessage = resource.message
+                    )
 
 
-
+                }
+            }
         }
     }
 
@@ -166,31 +188,6 @@ class RadioViewModel @Inject constructor(
 
     }
 
-    private fun getCountryList() {
-        radioUiState = radioUiState.copy(loading = true)
-        viewModelScope.launch {
-            val countries = getCountryListUseCase.invoke()
-            radioUiState = radioUiState.copy(
-                loading = false,
-                countryList = countries
-            )
-        }
-
-    }
-
-
-    private fun getLanguageList() {
-        radioUiState = radioUiState.copy(loading = true)
-        viewModelScope.launch {
-            val languages = getLanguageListUseCase.invoke()
-            radioUiState = radioUiState.copy(
-                loading = false,
-                languageList = languages
-            )
-        }
-
-    }
-
     private fun addOrRemoveFromFavorites(radioStation: RadioStation) {
        val favorites = radioUiState.favoriteStations?.toMutableList()
         if (favorites!!.contains(radioStation)) {
@@ -204,6 +201,32 @@ class RadioViewModel @Inject constructor(
 
         viewModelScope.launch {
             updateFavoriteStationsUseCase.invoke(favorites)
+        }
+    }
+
+    private fun playRadio(radioStation: RadioStation, radioList: List<RadioStation>?) {
+        val songList = radioList?.map { radio ->
+            radio.toSong()
+        }
+
+        if (!(radioUiState.selectedPlaylist?.songList ?: emptyList()).contains(radioStation.toSong())) {
+            setPlaylistAndPlay(radioStation.toSong(), songList ?: emptyList())
+        } else {
+            radioUiState.apply {
+                selectedPlaylist?.songList?.indexOf(radioStation.toSong())?.let { songIndex ->
+                    playSongUseCase(songIndex)
+                }
+            }
+        }
+
+    }
+
+    private fun setPlaylistAndPlay(song: Song, songList: List<Song>) {
+        if (songList.isNotEmpty()) {
+            viewModelScope.launch {
+                setPlaylistUseCase.invoke(Playlist(666, "Radio", songList, DataProvider.getDefaultCover()))
+                playSongUseCase(songList.indexOf(song))
+            }
         }
     }
 }

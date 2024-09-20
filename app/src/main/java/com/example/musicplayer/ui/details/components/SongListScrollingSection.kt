@@ -42,35 +42,27 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
 import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.other.PlayerState
-import com.example.musicplayer.ui.home.HomeEvent
-import com.example.musicplayer.ui.home.HomeUiState
+import com.example.musicplayer.ui.details.DetailScreenEvent
+import com.example.musicplayer.ui.details.DetailScreenUiState
 import com.example.musicplayer.ui.library.components.LibraryVerticalCardItem
-import com.example.musicplayer.ui.sharedresources.song.SongListScrollable
 import com.example.musicplayer.ui.theme.typography
-import com.example.musicplayer.ui.theme.yellow
-
-
-val surfaceGradient = listOf(yellow, Color.Red)
 
 @Composable
 fun SongListScrollingSection(
-    homeUiState: HomeUiState,
-    onEvent: (HomeEvent) -> Unit,
-    navController: NavController,
-    musicControllerUiState: MusicControllerUiState,
+    uiState: DetailScreenUiState,
+    onEvent: (DetailScreenEvent) -> Unit,
     contentName: String,
     songList: SnapshotStateList<Song>,
     albumsList: List<Album>,
     onSongListItemClick: (song: Song) -> Unit,
-    onAlbumCardClick: (album: Album) -> Unit,
-    onAddTracksClick: (playlist: Playlist) -> Unit
+    onAlbumCardClick: (albumId: Int) -> Unit,
+    onAddTracksClick: (playlistId: Int) -> Unit,
+    onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
 
 
@@ -89,15 +81,14 @@ fun SongListScrollingSection(
                 itemsIndexed(albumsList) { _, item ->
                     LibraryVerticalCardItem(
                         content = item,
-                        homeUiState = homeUiState,
-                        onLibraryCardItemClick = { onAlbumCardClick(it as Album) })
+                        onLibraryCardItemClick = { onAlbumCardClick((it as Album).id.toInt()) })
                 }
             }
             
 
         }
-        val isPlaylist = homeUiState.playlists?.filter { it.name == contentName } != null
-        if (isPlaylist) {
+        val isPlaylist = uiState.playlists?.filter { it.name == contentName } != null
+        if (isPlaylist && songList.isEmpty()) {
 
             Row(modifier = Modifier
                 .fillMaxWidth()
@@ -119,7 +110,7 @@ fun SongListScrollingSection(
                         )
                         .padding(vertical = 4.dp, horizontal = 24.dp)
                         .clickable {
-                            onAddTracksClick(homeUiState.playlists!!.first { it.name == contentName })
+                            onAddTracksClick(uiState.playlists?.first{it.name == contentName}!!.id)
                         }
                 )
             }
@@ -127,20 +118,12 @@ fun SongListScrollingSection(
         } else {
             Spacer(modifier = Modifier.height(16.dp))
         }
-        val columnSize = if (songList.size * 70 + 16 < 1080) {
-            540.dp
-        } else {
-            (songList.size * 70 + 16).dp
-        }
-        SongListScrollable(
-            homeUiState = homeUiState,
+        SongList(
+            uiState = uiState,
             onEvent = onEvent,
-            navController = navController,
-            musicControllerUiState = musicControllerUiState,
             playlist = songList,
-            playerState = musicControllerUiState.playerState,
-            modifier = Modifier.height(columnSize),
-            onSongListItemClick = onSongListItemClick
+            onSongListItemClick = onSongListItemClick,
+            onSongListItemSettingsClick = onSongListItemSettingsClick
         )
         Spacer(modifier = Modifier.height(100.dp))
     }
@@ -222,7 +205,7 @@ fun DownloadedRow(
 fun PlayButton(
     contentName: String,
     selectedPlaylist: Playlist,
-    playerState: PlayerState,
+    playerState: PlayerState?,
     onPlayButtonClick: () -> Unit
 ) {
     val buttonIcon = remember { mutableStateOf(Icons.Default.PlayArrow) }

@@ -20,59 +20,51 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.musicplayer.R
 import com.example.musicplayer.data.DataProvider
-import com.example.musicplayer.data.SettingsKeys.isSystemDark
 import com.example.musicplayer.domain.model.Playlist
-import com.example.musicplayer.ui.home.HomeEvent
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.library.components.LibraryHorizontalAddPlaylistItem
 import com.example.musicplayer.ui.library.components.LibraryHorizontalCardItem
 import com.example.musicplayer.ui.library.components.Title
-import com.example.musicplayer.ui.settings.AppSettingsSheet
-import com.example.musicplayer.ui.sharedresources.TopPageBar
-import com.example.musicplayer.ui.theme.modifiers.verticalGradientBackground
 
 @Composable
 fun LibraryScreen(
-    homeUiState: HomeUiState,
-    onEvent: (HomeEvent) -> Unit,
+    uiState: LibraryScreenUiState,
+    onEvent: (LibraryScreenEvent) -> Unit,
     onLibraryItemClick : (content: Any) -> Unit
 ) {
-
-    val context = LocalContext.current
-    val surfaceGradient = DataProvider.surfaceGradient(isSystemDark(context)).asReversed()
     val showDialog = remember { mutableStateOf(false) }
-    val showAppSettings = remember { mutableStateOf(false) }
     val recentlyAddedName = DataProvider.getRecentlyAddedName()
     Column(modifier = Modifier
-        .verticalGradientBackground(surfaceGradient)
         .fillMaxSize()) {
-        TopPageBar(pageName = R.string.your_collection, showAppSettings = showAppSettings)
-        LazyColumn {
+        LazyColumn{
             // use `item` for separate elements like headers
             // and `items` for lists of identical elements
+            item { Spacer(modifier = Modifier.height(16.dp)) }
             item { Title(text = stringResource(R.string.playlists)) }
-            item { Spacer(modifier = Modifier.height(20.dp)) }
+            item { Spacer(modifier = Modifier.height(8.dp)) }
             item { LibraryHorizontalAddPlaylistItem(onItemClicked = {showDialog.value = true}) }
 
-            homeUiState.playlists!!.forEach {
+            uiState.playlists!!.forEach {
                 if (it.name != recentlyAddedName) {
                     item { LibraryHorizontalCardItem(content = it,onClick = onLibraryItemClick) }
                 }
             }
-            item { Spacer(modifier = Modifier.height(20.dp)) }
-            if (!homeUiState.songs.isNullOrEmpty()) {
+            item { Spacer(modifier = Modifier.height(8.dp)) }
+            if (!uiState.artists.isNullOrEmpty()) {
                 item { Title(text = stringResource(R.string.artists)) }
-                itemsIndexed(homeUiState.artists!!) { _, item ->
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                itemsIndexed(uiState.artists) { _, item ->
                     LibraryHorizontalCardItem(content = item, onClick = onLibraryItemClick)
                 }
-                item { Spacer(modifier = Modifier.height(20.dp)) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
+            if (!uiState.albums.isNullOrEmpty()) {
                 item { Title(text = stringResource(R.string.albums)) }
-                itemsIndexed(homeUiState.albums!!) { _, item ->
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                itemsIndexed(uiState.albums) { _, item ->
                     LibraryHorizontalCardItem(content = item, onClick = onLibraryItemClick)
                 }
             }
@@ -83,15 +75,11 @@ fun LibraryScreen(
     if (showDialog.value) {
         AddNewPlaylistDialog(
             onOkClicked = {
-                onEvent(HomeEvent.AddNewPlaylist(it))
+                onEvent(LibraryScreenEvent.AddNewPlaylist(it))
             },
             showDialog = showDialog,
-            homeUiState = homeUiState
+            allPlaylistNames = uiState.playlists!!.map { it.name }
         )
-    }
-
-    if (showAppSettings.value) {
-        AppSettingsSheet(showAppSettings)
     }
 }
 
@@ -99,7 +87,7 @@ fun LibraryScreen(
 fun AddNewPlaylistDialog(
     onOkClicked: (newPlaylist: Playlist) -> Unit,
     showDialog: MutableState<Boolean>,
-    homeUiState: HomeUiState
+    allPlaylistNames: List<String>
 ) {
     val newPlaylistName = remember { mutableStateOf("") }
     val errorText = stringResource(R.string.playlist_already_exists)
@@ -107,8 +95,6 @@ fun AddNewPlaylistDialog(
     val textFieldLabel = stringResource(R.string.playlist_name)
     val cancelText = stringResource(R.string.cancel)
     val errorMessage = remember(newPlaylistName.value) {
-        val allPlaylistNames: List<String> = homeUiState.playlists!!.map { it.name }
-
         if (allPlaylistNames.contains(newPlaylistName.value)) errorText else ""
     }
 
@@ -148,7 +134,7 @@ fun AddNewPlaylistDialog(
                     if (errorMessage.isEmpty()) {
                         showDialog.value = false
                         val newPlaylist = Playlist(
-                            homeUiState.playlists!!.size,
+                            allPlaylistNames.size,
                             newPlaylistName.value,
                             mutableStateListOf(),
                             DataProvider.getDefaultCover()

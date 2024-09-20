@@ -18,7 +18,6 @@ import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
@@ -26,7 +25,6 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Song
-import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -96,7 +94,7 @@ fun ImagePager(
                     painter = rememberAsyncImagePainter(
                         ImageRequest.Builder(LocalContext.current)
                             .data(data = content.imageUrl.toUri())
-                            .apply<ImageRequest.Builder>(
+                            .apply(
                                 block = fun ImageRequest.Builder.() {
                                     crossfade(true)
                                     placeholder(R.drawable.stocksongcover)

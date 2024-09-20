@@ -5,9 +5,9 @@ import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,9 +43,9 @@ import com.example.musicplayer.R
 import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.home.HomeEvent
+import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.library.components.LibraryHorizontalCardItem
 import com.example.musicplayer.ui.theme.typography
-import com.example.musicplayer.ui.home.HomeUiState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -55,6 +56,7 @@ fun BoxTopSectionForMainScreen(
     dynamicAlphaForTopPart: Float) {
     val showChangePlaylistDialog = remember { mutableStateOf(false) }
     var playerIcon by remember { mutableStateOf(Icons.Default.PlayArrow) }
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     val playButtonColors = ButtonColors(
         contentColor = MaterialTheme.colorScheme.onSurface,
         containerColor = Color.Transparent,
@@ -81,8 +83,10 @@ fun BoxTopSectionForMainScreen(
     }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier
+            .height(screenHeight - 260.dp)
+            .offset(y = (-120).dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

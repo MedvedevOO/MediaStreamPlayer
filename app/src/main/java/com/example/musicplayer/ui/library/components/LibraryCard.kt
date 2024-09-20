@@ -38,7 +38,6 @@ import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Artist
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.theme.graySurface
 import com.example.musicplayer.ui.theme.typography
 
@@ -92,9 +91,9 @@ fun LibraryHorizontalCardItem(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .height(90.dp)
+                .height(80.dp)
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(horizontal = 8.dp)
                 .background(cardColor.copy(alpha = 0.0f))
                 .clip(RoundedCornerShape(10.dp))
                 .clickable(onClick = {
@@ -133,7 +132,6 @@ fun LibraryHorizontalCardItem(
 @Composable
 fun LibraryVerticalCardItem(
     content: Any,
-    homeUiState: HomeUiState,
     onLibraryCardItemClick : (content:Any) -> Unit
 ) {
     val context = LocalContext.current
@@ -141,9 +139,9 @@ fun LibraryVerticalCardItem(
     var shape: Shape = RoundedCornerShape(10.dp)
     var name = ""
     when(content) {
-        is Int -> {
-            imagePainter = rememberAsyncImagePainter(homeUiState.playlists!![content].artWork)
-            name = homeUiState.playlists[content].name
+        is Playlist -> {
+            imagePainter = rememberAsyncImagePainter(content.artWork)
+            name = content.name
         }
         is Album -> {
             imagePainter = rememberAsyncImagePainter(content.albumCover)
@@ -157,20 +155,6 @@ fun LibraryVerticalCardItem(
     }
 
     val cardColor = if (isSystemDark(context)) graySurface else MaterialTheme.colorScheme.background
-//    Card(
-//        elevation = 4.dp,
-//        backgroundColor = cardColor.copy(alpha = 0.0f),
-//        modifier = Modifier
-//            .height(90.dp)
-//            .fillMaxWidth()
-//            .clip(CutCornerShape(10.dp))
-//            .padding(8.dp)
-//            .clickable(onClick = {
-//                //Disclaimer: We should pass event top level and there should startActivity
-//                //  context.startActivity(Intent(context, MainActivity::class.java))
-//                context.startActivity(SpotifyDetailActivity.newIntent(context, content))
-//            })
-//    ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -195,7 +179,6 @@ fun LibraryVerticalCardItem(
                 
             contentScale = ContentScale.Crop
         )
-//        Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = name, maxLines = 3,
             style = typography.headlineSmall.copy(fontSize = 12.sp),
@@ -223,7 +206,7 @@ fun LibraryHorizontalAddPlaylistItem(onItemClicked: () -> Unit) {
         modifier = Modifier
             .height(90.dp)
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(horizontal = 8.dp)
             .background(cardColor.copy(alpha = 0.0f))
             .clickable(onClick = onItemClicked)
 

@@ -2,8 +2,7 @@ package com.example.musicplayer.domain.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.musicplayer.R
-import com.example.musicplayer.data.DataProvider
+
 @Entity(tableName = "favoriteStations")
 data class RadioStation(
     val name: String,
