@@ -12,7 +12,6 @@ MStreamPlayer is an Android application created for playing music with Jetpack C
 | ![screen](previews/PermissionScreen.jpg)     |     ![screen](previews/HomeScreen.jpg)     |   ![screen](previews/RadioScreen.jpg)   |    ![screen](previews/SearchScreen.jpg)    |    ![screen](previews/LibraryScreen.jpg)     |
 |----------------------------------------------|:------------------------------------------:|:---------------------------------------:|:------------------------------------------:|:--------------------------------------------:|
 | ![screen](previews/DetailScreenPlaylist.jpg) | ![screen](previews/DetailScreenArtist.jpg) | ![screen](previews/AddTracksScreen.jpg) | ![screen](previews/EditPlaylistScreen.jpg) | ![screen](previews/DetailSettingsSheet.jpg)  |
-| ------------------------------------------   |                :----------:                |               :--------:                |                :---------:                 | :------------------------------------------: |
 
 ## Tech stack & Open-source libraries
 
