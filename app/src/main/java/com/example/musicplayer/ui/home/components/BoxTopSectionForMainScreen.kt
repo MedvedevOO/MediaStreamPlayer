@@ -1,6 +1,6 @@
 package com.example.musicplayer.ui.home.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -47,7 +47,7 @@ import com.example.musicplayer.ui.home.HomeUiState
 import com.example.musicplayer.ui.library.components.LibraryHorizontalCardItem
 import com.example.musicplayer.ui.theme.typography
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BoxTopSectionForMainScreen(
     homeUiState: HomeUiState,
@@ -123,7 +123,7 @@ fun BoxTopSectionForMainScreen(
                     ),
                     modifier = Modifier
                         .padding(8.dp)
-                        .basicMarquee(initialDelayMillis = 5000, delayMillis = 5000),
+                        .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000),
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -160,16 +160,6 @@ fun BoxTopSectionForMainScreen(
                             }
                         }
                     }
-//                    LazyColumn() {
-//                        itemsIndexed(MusicPlayerData.allPlayLists.values.toList()) { index, item->
-//                            if (item.songList.isNotEmpty()) {
-//                                LibraryHorizontalCardItem(index,context) {
-//                                    changePlaylistLambda(item)
-//                                }
-//                            }
-//
-//                        }
-//                    }
                 }
             }
 
@@ -198,115 +188,3 @@ fun BoxTopSectionForMainScreen(
     }
 
 }
-//
-//@OptIn(ExperimentalFoundationApi::class, ExperimentalPermissionsApi::class)
-//@Composable
-//fun NoTracksOrPermitBox(storagePermissionsState: MultiplePermissionsState) {
-//    val buttonColors = ButtonColors(
-//        contentColor = MaterialTheme.colorScheme.onSurface,
-//        containerColor = Color.Transparent,
-//        disabledContainerColor = Color.Transparent,
-//        disabledContentColor = Color.Transparent)
-//    val permissionRequestText = stringResource(id = R.string.permission_request)
-//    val displayTextDevice = remember{ mutableStateOf(permissionRequestText) }
-//    val displayTextCloud = stringResource(id = R.string.connect_cloud)
-//    val showConnectToCloudSheet = remember { mutableStateOf(false) }
-//    val onClick = remember<()-> Unit> {
-//        {
-//            if (!storagePermissionsState.allPermissionsGranted) {
-//                storagePermissionsState.launchMultiplePermissionRequest()
-//            }
-//
-//            if (storagePermissionsState.allPermissionsGranted) {
-//                //todo: коллект песен на новом механизме
-////                    MusicPlayerData.deviceDataFetch(songFetcher, databaseHelper)
-//
-//            }
-//        }
-//    }
-//
-//
-//    if (storagePermissionsState.allPermissionsGranted) {
-//        displayTextDevice.value = stringResource(R.string.no_tracks_found)
-//    }
-//    Box(
-//        modifier = Modifier.fillMaxSize()
-//        ,
-//        contentAlignment = Alignment.Center
-//    ) {
-//        Column(
-//            horizontalAlignment = Alignment.CenterHorizontally,
-//            modifier = Modifier.fillMaxWidth()
-//        ) {
-//            Button(
-//                onClick = onClick,
-//                modifier = Modifier.fillMaxWidth(),
-//                shape = CircleShape,
-//                colors = buttonColors
-//            ) {
-//                Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-//                    Icon(
-//                        modifier = Modifier.size(48.dp),
-//                        imageVector = Icons.Default.LibraryMusic, tint = MaterialTheme.colorScheme.onSurface,
-//                        contentDescription = null
-//                    )
-//                    Text(
-//                        maxLines = 2,
-//                        text = displayTextDevice.value,
-//                        style = typography.headlineLarge.copy(
-//                            fontWeight = FontWeight.ExtraBold,
-//                            fontSize = 16.sp,
-//                            shadow = Shadow(
-//                                MaterialTheme.colorScheme.background, blurRadius = 1f
-//                            )
-//                        ),
-//                        modifier = Modifier
-//                            .padding(8.dp)
-//                            .basicMarquee(initialDelayMillis = 5000, delayMillis = 5000),
-//                        color = MaterialTheme.colorScheme.onSurface
-//                    )
-//                }
-//
-//            }
-//
-////            Button(
-////                onClick = { showConnectToCloudSheet.value = true },
-////                modifier = Modifier.fillMaxWidth(),
-////                shape = CircleShape,
-////                colors = buttonColors
-////            ) {
-////                Row(horizontalArrangement = Arrangement.Start, modifier = Modifier.fillMaxWidth()) {
-////                    Icon(
-////                        modifier = Modifier.size(48.dp),
-////                        imageVector = Icons.Default.Cloud, tint = MaterialTheme.colorScheme.onSurface,
-////                        contentDescription = null
-////                    )
-////                    Text(
-////                        maxLines = 2,
-////                        text = displayTextCloud,
-////                        style = typography.headlineLarge.copy(
-////                            fontWeight = FontWeight.ExtraBold,
-////                            fontSize = 16.sp,
-////                            shadow = Shadow(
-////                                MaterialTheme.colorScheme.background, blurRadius = 1f
-////                            )
-////                        ),
-////                        modifier = Modifier
-////                            .padding(8.dp)
-////                            .basicMarquee(initialDelayMillis = 5000, delayMillis = 5000),
-////                        color = MaterialTheme.colorScheme.onSurface
-////                    )
-////                }
-////
-////            }
-//            if (storagePermissionsState.shouldShowRationale) {
-//                Text(text = stringResource(R.string.permission_to_read_media))
-//            }
-//
-////            if (showConnectToCloudSheet.value) {
-////                CloudConnectSheet(showConnectToCloudSheet)
-////            }
-//
-//        }
-//    }
-//}

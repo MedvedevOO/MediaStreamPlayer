@@ -174,7 +174,7 @@ class MusicControllerImpl(context: Context) : MusicController {
             id = -2,
             name = DataProvider.getString(R.string.mix),
             songList = songs,
-            artWork = Uri.EMPTY
+            artWork = ""
         )
 
         CoroutineScope(Dispatchers.IO).launch {

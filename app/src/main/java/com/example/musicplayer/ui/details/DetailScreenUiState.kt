@@ -13,7 +13,7 @@ data class DetailScreenUiState(
     val playlists: List<Playlist>? = emptyList(),
     val playerState: PlayerState? = PlayerState.STOPPED,
     val selectedSong: Song? = null,
-    var selectedPlaylist: Playlist? = Playlist(-1, DataProvider.getAllTracksName(), mutableStateListOf(), Uri.EMPTY),
+    var selectedPlaylist: Playlist? = Playlist(-1, DataProvider.getAllTracksName(), mutableStateListOf(), ""),
 
     val errorMessage: String? = null
 )

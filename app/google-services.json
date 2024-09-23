@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "996072366982",
+    "project_id": "musicstreamplayer-d7f3b",
+    "storage_bucket": "musicstreamplayer-d7f3b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996072366982:android:5eb09005dd86a789098207",
+        "android_client_info": {
+          "package_name": "com.example.musicplayer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996072366982-co02r3gj3b5a7o02s1fmn3krf1jud905.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBLqztwIvjm10m3XBvMi0E-ui8jYS_9R0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996072366982-co02r3gj3b5a7o02s1fmn3krf1jud905.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

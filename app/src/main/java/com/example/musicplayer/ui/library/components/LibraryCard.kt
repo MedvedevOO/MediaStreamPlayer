@@ -116,7 +116,7 @@ fun LibraryHorizontalCardItem(
                     text = topCardText,
                     maxLines = 1,
                     style = typography.headlineMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold ),
-                    modifier = Modifier.padding(horizontal = 8.dp).basicMarquee(delayMillis = 5000, initialDelayMillis = 5000)
+                    modifier = Modifier.padding(horizontal = 8.dp).basicMarquee(repeatDelayMillis = 3000, initialDelayMillis = 3000)
                 )
                 Text(
                     text = bottomCardText,
@@ -159,7 +159,6 @@ fun LibraryVerticalCardItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .width(136.dp)
-            .height(180.dp)
             .padding(vertical = 16.dp, horizontal = 8.dp)
             .background(cardColor.copy(alpha = 0.0f))
             .clip(shape)
@@ -184,7 +183,7 @@ fun LibraryVerticalCardItem(
             style = typography.headlineSmall.copy(fontSize = 12.sp),
             modifier = Modifier
                 .padding(top = 8.dp)
-                .basicMarquee(delayMillis = 3000, iterations = Int.MAX_VALUE)
+                .basicMarquee(repeatDelayMillis = 3000, iterations = Int.MAX_VALUE)
 
 
         )

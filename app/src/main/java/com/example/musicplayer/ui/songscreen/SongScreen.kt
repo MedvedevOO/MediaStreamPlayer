@@ -282,7 +282,7 @@ fun SongScreenContent(
                     Row(modifier = Modifier
                         .padding(start = 8.dp, top = 8.dp, end = 8.dp)
                         .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center) {
+                        horizontalArrangement = Arrangement.Start) {
                         IconButton(
                             onClick = onClose,
                             colors = IconButtonColors(

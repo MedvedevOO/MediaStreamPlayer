@@ -52,7 +52,7 @@ class DatabaseHelper {
             1,
             DataProvider.getRecentlyAddedName(),
             recentlyAddedSongList,
-            recentlyAddedSongsArtwork
+            recentlyAddedSongsArtwork.toString()
         )
     }
 
@@ -71,9 +71,9 @@ class DatabaseHelper {
     }
 
     suspend fun getAllPlaylists(allSongsList: List<Song>): List<Playlist> {
-        val allSongsPlaylist = Playlist(0, DataProvider.getAllTracksName(), allSongsList, DataProvider.getAllTracksCover())
+        val allSongsPlaylist = Playlist(0, DataProvider.getAllTracksName(), allSongsList, DataProvider.getAllTracksCover().toString())
         val recentlyAddedPlaylist = getRecentSongs()
-        val favorites = Playlist(2, DataProvider.getFavoritesName(), emptyList(), DataProvider.getFavoritesCover())
+        val favorites = Playlist(2, DataProvider.getFavoritesName(), emptyList(), DataProvider.getFavoritesCover().toString())
 
 
         val resultList = mutableListOf(allSongsPlaylist,recentlyAddedPlaylist)

@@ -11,7 +11,7 @@ data class HomeUiState(
     val songs: List<Song>? = emptyList(),
     val playlists: List<Playlist>? = emptyList(),
     val selectedSong: Song? = null,
-    var selectedPlaylist: Playlist? = Playlist(-1, DataProvider.getAllTracksName(), mutableStateListOf(), Uri.EMPTY),
+    var selectedPlaylist: Playlist? = Playlist(-1, DataProvider.getAllTracksName(), mutableStateListOf(), ""),
 
     val errorMessage: String? = null
 )

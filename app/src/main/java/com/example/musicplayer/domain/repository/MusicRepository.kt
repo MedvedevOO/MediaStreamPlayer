@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface MusicRepository {
 
+    suspend fun loadData()
+
     fun getSongs(): Flow<Resource<List<Song>>>
 
     fun getPlaylists(): Flow<Resource<List<Playlist>>>
@@ -17,9 +19,9 @@ interface MusicRepository {
 
     fun getArtists(): Flow<Resource<List<Artist>>>
 
-    fun getAlbumIdByName(name: String): Int?
+    fun getAlbumByName(name: String): Album?
 
-    fun getArtistIdByName(name: String): Int?
+    fun getArtistByName(name: String): Artist?
 
     fun getAlbumById(id: Int): Album?
 

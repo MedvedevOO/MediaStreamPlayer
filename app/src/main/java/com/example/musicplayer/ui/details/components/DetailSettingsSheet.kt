@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -46,6 +47,7 @@ import com.example.musicplayer.data.SettingsKeys.isSystemDark
 import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Artist
 import com.example.musicplayer.domain.model.Playlist
+import com.example.musicplayer.ui.details.DetailScreenItemUiState
 import com.example.musicplayer.ui.theme.graySurface
 import com.example.musicplayer.ui.theme.typography
 
@@ -53,35 +55,42 @@ import com.example.musicplayer.ui.theme.typography
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailSettingsSheet(
-    content: Any,
+    contentUiState: DetailScreenItemUiState,
     onDismiss: () -> Unit,
     onDetailMenuItemClick: (menuItem: String, playlistId: Int) -> Unit
 ) {
     var playlistId = 0
-    val menuItems = when(content) {
+    val menuItems = when (contentUiState.contentType) {
 
-        is Playlist -> {
+        "playlist" -> {
             mutableMapOf(
 //            Pair(stringResource(R.string.download), Icons.Default.Download),
                 Pair(stringResource(R.string.play_next), Icons.AutoMirrored.Filled.QueueMusic),
-                Pair(stringResource(R.string.add_to_queue), Icons.AutoMirrored.Filled.PlaylistAddCheck),
+                Pair(
+                    stringResource(R.string.add_to_queue),
+                    Icons.AutoMirrored.Filled.PlaylistAddCheck
+                ),
                 Pair(stringResource(R.string.edit), Icons.Default.Edit)
             ).apply {
-                when (content.id) {
+                when (contentUiState.contentId) {
                     0 -> {
                     }
+
                     1, 2 -> {}
                     else -> {
                         put(stringResource(R.string.rename), Icons.Default.DriveFileRenameOutline)
-                        put(stringResource(R.string.add_tracks), Icons.AutoMirrored.Filled.PlaylistAdd)
+                        put(
+                            stringResource(R.string.add_tracks),
+                            Icons.AutoMirrored.Filled.PlaylistAdd
+                        )
                         put(stringResource(R.string.delete_playlist), Icons.Default.Delete)
                     }
                 }
-                if (content.songList.isEmpty()) {
+                if (contentUiState.contentSongList.isEmpty()) {
                     remove(stringResource(R.string.edit))
                 }
             }.also {
-                playlistId = content.id
+                playlistId = contentUiState.contentId
             }
 
         }
@@ -90,9 +99,12 @@ fun DetailSettingsSheet(
 
             mutableMapOf(
 //            Pair(stringResource(R.string.download), Icons.Default.Download),
-            Pair(stringResource(R.string.play_next), Icons.AutoMirrored.Filled.QueueMusic),
-            Pair(stringResource(R.string.add_to_queue), Icons.AutoMirrored.Filled.PlaylistAddCheck)
-        )
+                Pair(stringResource(R.string.play_next), Icons.AutoMirrored.Filled.QueueMusic),
+                Pair(
+                    stringResource(R.string.add_to_queue),
+                    Icons.AutoMirrored.Filled.PlaylistAddCheck
+                )
+            )
         }
     }
 
@@ -105,19 +117,22 @@ fun DetailSettingsSheet(
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            item { DetailContentCardItem(content) }
+            item { DetailContentCardItem(contentUiState) }
 
             menuItems.forEach { menuItem ->
-                item { DetailMenuItem(
-                    item = menuItem.toPair(),
-                    onItemClick = {name ->
-                        onDetailMenuItemClick(name, playlistId)
-                    }
-                )
+                item {
+                    DetailMenuItem(
+                        item = menuItem.toPair(),
+                        onItemClick = { name ->
+                            onDetailMenuItemClick(name, playlistId)
+                        }
+                    )
                 }
-                item { HorizontalDivider(thickness = 4.dp) }
+                item { HorizontalDivider(thickness = 2.dp) }
             }
+            item { Spacer(modifier = Modifier.height(100.dp)) }
         }
+
 
     }
 }
@@ -125,43 +140,14 @@ fun DetailSettingsSheet(
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun DetailContentCardItem(content: Any) {
+fun DetailContentCardItem(contentUiState: DetailScreenItemUiState) {
     val shape: Shape = RoundedCornerShape(10.dp)
     val context = LocalContext.current
-    val (imagePainter,topCardText,bottomCardText) = when(content) {
-        is Playlist -> {
-            Triple(
-                rememberAsyncImagePainter(content.artWork),
-                content.name,
-                stringResource(R.string.tracks_size, content.songList.size)
-            )
-
-        }
-        is Artist -> {
-            Triple(
-                rememberAsyncImagePainter(content.photo),
-                content.name,
-                stringResource(R.string.tracks_size, content.songList.size)
-            )
-
-        }
-        is Album -> {
-            Triple(
-                rememberAsyncImagePainter(content.albumCover),
-                content.name,
-                stringResource(R.string.tracks_size, content.songList.size)
-            )
-
-        }
-
-        else -> {
-            Triple(
-                rememberAsyncImagePainter(DataProvider.getDefaultCover()),
-                "Error",
-                "0"
-            )
-        }
-    }
+    val (imagePainter, topCardText, bottomCardText) = Triple(
+        rememberAsyncImagePainter(contentUiState.contentArtworkUri),
+        contentUiState.contentName,
+        contentUiState.contentDescription
+    )
     val cardColor = if (isSystemDark(context)) graySurface else MaterialTheme.colorScheme.background
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -186,7 +172,10 @@ fun DetailContentCardItem(content: Any) {
         Column {
             Text(
                 text = topCardText,
-                style = typography.headlineMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold ),
+                style = typography.headlineMedium.copy(
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold
+                ),
                 modifier = Modifier.padding(horizontal = 8.dp)
             )
 
@@ -200,7 +189,7 @@ fun DetailContentCardItem(content: Any) {
 }
 
 @Composable
-fun DetailMenuItem(item: Pair<String,ImageVector>, onItemClick: (name: String) -> Unit) {
+fun DetailMenuItem(item: Pair<String, ImageVector>, onItemClick: (name: String) -> Unit) {
 
     Row(verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
@@ -212,9 +201,11 @@ fun DetailMenuItem(item: Pair<String,ImageVector>, onItemClick: (name: String) -
                 onItemClick(item.first)
             }
     ) {
-        Icon(imageVector = item.second, contentDescription = item.first, modifier = Modifier
-            .padding(end = 8.dp)
-            .size(24.dp))
+        Icon(
+            imageVector = item.second, contentDescription = item.first, modifier = Modifier
+                .padding(end = 8.dp)
+                .size(24.dp)
+        )
         Text(
             text = item.first,
             style = typography.headlineMedium.copy(fontSize = 16.sp),

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.usecase.AddOrRemoveFavoriteSongUseCase
+import com.example.musicplayer.domain.usecase.FetchDataUseCase
 import com.example.musicplayer.domain.usecase.GetCurrentPlaylistUseCase
 import com.example.musicplayer.domain.usecase.GetCurrentSongUseCase
 import com.example.musicplayer.domain.usecase.GetPlaylistsUseCase
@@ -25,6 +26,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val addOrRemoveFavoriteSongUseCase: AddOrRemoveFavoriteSongUseCase,
     private val getSongsUseCase: GetSongsUseCase,
+    private val fetchDataUseCase: FetchDataUseCase,
     private val getPlaylistsUseCase: GetPlaylistsUseCase,
     private val setPlaylistUseCase: SetPlaylistUseCase,
     private val getCurrentPlaylistUseCase: GetCurrentPlaylistUseCase,
@@ -49,23 +51,31 @@ class HomeViewModel @Inject constructor(
         when (event) {
             HomeEvent.PlaySong -> playSong()
 
-            HomeEvent.PauseSong ->  pauseSongUseCase.invoke()
+            HomeEvent.PauseSong ->  pauseSongUseCase()
 
-            HomeEvent.ResumeSong -> resumeSongUseCase.invoke()
+            HomeEvent.ResumeSong -> resumeSongUseCase()
+
+            HomeEvent.FetchData -> fetchData()
 
             is HomeEvent.OnSongSelected -> homeUiState =
                 homeUiState.copy(selectedSong = event.selectedSong)
 
-            is HomeEvent.OnSongLikeClick -> addOrRemoveFavoriteSongUseCase.invoke(event.song)
+            is HomeEvent.OnSongLikeClick -> addOrRemoveFavoriteSongUseCase(event.song)
 
             is HomeEvent.OnPlaylistChange -> changePlaylist(event.newPlaylist)
 
         }
     }
 
+    private fun fetchData() {
+        viewModelScope.launch {
+            fetchDataUseCase()
+        }
+    }
+
     private fun observeSongs() {
         viewModelScope.launch {
-            getSongsUseCase.invoke().collect { resource ->
+            getSongsUseCase().collect { resource ->
                 homeUiState = when (resource) {
                     is Resource.Success -> homeUiState.copy(
                         loading = false,
@@ -87,7 +97,7 @@ class HomeViewModel @Inject constructor(
 
     private fun observePlaylists() {
         viewModelScope.launch {
-            getPlaylistsUseCase.invoke().collect { resource ->
+            getPlaylistsUseCase().collect { resource ->
                 homeUiState = when (resource) {
                     is Resource.Success -> {
                         if (homeUiState.selectedPlaylist?.id == -1) {
@@ -116,7 +126,7 @@ class HomeViewModel @Inject constructor(
 
     private fun observeSelectedPlaylist() {
         viewModelScope.launch {
-            getCurrentPlaylistUseCase.invoke().collect { resource ->
+            getCurrentPlaylistUseCase().collect { resource ->
                 homeUiState = when (resource) {
                     is Resource.Success -> homeUiState.copy(
                         loading = false,
@@ -140,7 +150,7 @@ class HomeViewModel @Inject constructor(
 
     private fun observeCurrentSong() {
         viewModelScope.launch {
-            getCurrentSongUseCase.invoke().collect { resource ->
+            getCurrentSongUseCase().collect { resource ->
                 homeUiState = when (resource) {
                     is Resource.Success -> homeUiState.copy(
                         loading = false,
@@ -172,8 +182,8 @@ class HomeViewModel @Inject constructor(
 
     private fun changePlaylist(newPlaylist: Playlist) {
         viewModelScope.launch {
-            setPlaylistUseCase.invoke(newPlaylist)
-            playSong()
+            setPlaylistUseCase(newPlaylist)
+            playSongUseCase(0)
         }
     }
 

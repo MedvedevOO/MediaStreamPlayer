@@ -1,18 +1,20 @@
 package com.example.musicplayer.ui.viewmodels
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.musicplayer.R
+import com.example.musicplayer.domain.model.Playlist
+import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.domain.usecase.AddNewPlaylistUseCase
 import com.example.musicplayer.domain.usecase.AddSongNextToCurrentUseCase
 import com.example.musicplayer.domain.usecase.AddSongsToQueueUseCase
 import com.example.musicplayer.domain.usecase.DestroyMediaControllerUseCase
-import com.example.musicplayer.domain.usecase.GetAlbumIdByNameUseCase
-import com.example.musicplayer.domain.usecase.GetArtistIdByNameUseCase
 import com.example.musicplayer.domain.usecase.GetCurrentSongPositionUseCase
-import com.example.musicplayer.domain.usecase.GetPlaylistByIdUseCase
 import com.example.musicplayer.domain.usecase.GetPlaylistsUseCase
 import com.example.musicplayer.domain.usecase.GetSongsUseCase
 import com.example.musicplayer.domain.usecase.SetMediaControllerCallbackUseCase
@@ -33,9 +35,6 @@ class SharedViewModel @Inject constructor(
     private val addNewPlaylistUseCase: AddNewPlaylistUseCase,
     private val addSongNextToCurrentUseCase: AddSongNextToCurrentUseCase,
     private val addSongsToQueueUseCase: AddSongsToQueueUseCase,
-    private val getAlbumIdByNameUseCase: GetAlbumIdByNameUseCase,
-    private val getArtistIdByNameUseCase: GetArtistIdByNameUseCase,
-    private val getPlaylistByIdUseCase: GetPlaylistByIdUseCase,
     private val getSongsUseCase: GetSongsUseCase,
     private val getPlaylistsUseCase: GetPlaylistsUseCase,
 
@@ -52,18 +51,14 @@ class SharedViewModel @Inject constructor(
         observePlaylists()
     }
 
-    fun onEvent(event: SharedViewModelEvent): Any? {
+    fun onEvent(event: SharedViewModelEvent) {
         when (event) {
-            is SharedViewModelEvent.AddNewPlaylist -> addNewPlaylistUseCase.invoke(event.newPlaylist)
-            is SharedViewModelEvent.AddSongListToQueue -> addSongsToQueueUseCase.invoke(event.songList)
-            is SharedViewModelEvent.AddSongNextToCurrentSong -> addSongNextToCurrentUseCase.invoke(event.song)
-            is SharedViewModelEvent.FindAlbumIdByName -> return getAlbumIdByNameUseCase.invoke(event.name)
-            is SharedViewModelEvent.FindArtistIdByName -> return getArtistIdByNameUseCase.invoke(event.name)
-            is SharedViewModelEvent.FindPlaylistById -> return getPlaylistByIdUseCase.invoke(event.id)
-            SharedViewModelEvent.GetSongs -> return musicControllerUiState.songs
+            is SharedViewModelEvent.AddNewPlaylist -> addNewPlaylistUseCase(event.newPlaylist)
+            is SharedViewModelEvent.AddSongToNewPlaylist -> addSongToNewPlaylist(event.newPlaylist, event.newSong, event.context)
+            is SharedViewModelEvent.AddSongListToQueue -> addSongsToQueueUseCase(event.songList)
+            is SharedViewModelEvent.AddSongNextToCurrentSong -> addSongNextToCurrentUseCase(event.song)
 
         }
-        return null
     }
 
     private fun setMediaControllerCallback() {
@@ -100,7 +95,7 @@ class SharedViewModel @Inject constructor(
 
     private fun observeSongs() {
         viewModelScope.launch {
-            getSongsUseCase.invoke().collect { resource ->
+            getSongsUseCase().collect { resource ->
                 musicControllerUiState = when (resource) {
                     is Resource.Success -> musicControllerUiState.copy(
                         loading = false,
@@ -122,12 +117,12 @@ class SharedViewModel @Inject constructor(
 
     private fun observePlaylists() {
         viewModelScope.launch {
-            getPlaylistsUseCase.invoke().collect { resource ->
+            getPlaylistsUseCase().collect { resource ->
                 musicControllerUiState = when (resource) {
                     is Resource.Success -> {
                         musicControllerUiState.copy(
                             loading = false,
-                            playlists = resource.data
+                            playlists = resource.data ?: emptyList()
                         )
                     }
 
@@ -142,5 +137,17 @@ class SharedViewModel @Inject constructor(
                 }
             }
         }
+    }
+    private fun addSongToNewPlaylist(newPlaylist: Playlist, newSong: Song, context: Context){
+        val newSongList = newPlaylist.songList.toMutableList()
+            .apply { add(newSong) }
+        val resultList = newPlaylist.copy(
+            songList = newSongList,
+            artWork = newSong.imageUrl
+        )
+        addNewPlaylistUseCase(resultList)
+        val toastText =
+            context.getString(R.string.track_added_to_playlist, newPlaylist.name)
+        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
     }
 }

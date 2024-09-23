@@ -10,7 +10,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -18,13 +17,12 @@ import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicplayer.R
 import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.SettingsKeys
-import com.example.musicplayer.domain.model.Album
-import com.example.musicplayer.domain.model.Artist
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
@@ -35,19 +33,51 @@ import com.example.musicplayer.ui.details.components.DetailSettingsSheet
 import com.example.musicplayer.ui.details.components.RenamePlaylistDialog
 import com.example.musicplayer.ui.details.components.TopSectionOverlay
 import com.example.musicplayer.ui.sharedresources.albumCoverImage
+import com.example.musicplayer.ui.theme.MusicPlayerTheme
 import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
 fun DetailScreen(
-    uiState: DetailScreenUiState,
-    onEvent: (DetailScreenEvent) -> Unit,
-    content: Any,
+    contentType: String,
+    contentId: Int?,
+    contentName: String?,
     onNavigateUp: () -> Unit,
     onAlbumCardClick: (albumId: Int) -> Unit,
-    onAddTracksClick: (playlistId: Int) -> Unit,
-    onEditPlayListClick: (playlistId: Int) -> Unit,
+    onAddTracksClick: (playlist: Playlist) -> Unit,
+    onEditPlayListClick: (playlist: Playlist) -> Unit,
+    onDeletePlaylistClick: () -> Unit,
+    onSongListItemSettingsClick: (song: Song) -> Unit
+) {
+    val detailScreenViewModel: DetailScreenViewModel = hiltViewModel()
+    val onEvent = detailScreenViewModel::onEvent
+
+    LaunchedEffect(contentId, contentType) {
+        onEvent(DetailScreenEvent.SetDetailScreenItem(contentId,contentName, contentType))
+    }
+    DetailScreenBody(
+        uiState = detailScreenViewModel.detailScreenUiState,
+        contentUiState = detailScreenViewModel.detailScreenItemUiState,
+        onEvent = detailScreenViewModel::onEvent,
+        onNavigateUp = onNavigateUp,
+        onAlbumCardClick = onAlbumCardClick,
+        onAddTracksClick = onAddTracksClick,
+        onEditPlayListClick = onEditPlayListClick,
+        onDeletePlaylistClick = onDeletePlaylistClick,
+        onSongListItemSettingsClick = onSongListItemSettingsClick
+    )
+}
+
+@Composable
+fun DetailScreenBody(
+    uiState: DetailScreenUiState,
+    contentUiState: DetailScreenItemUiState,
+    onEvent: (DetailScreenEvent) -> Unit,
+    onNavigateUp: () -> Unit,
+    onAlbumCardClick: (albumId: Int) -> Unit,
+    onAddTracksClick: (playlist: Playlist) -> Unit,
+    onEditPlayListClick: (playlist: Playlist) -> Unit,
     onDeletePlaylistClick: () -> Unit,
     onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
@@ -55,77 +85,18 @@ fun DetailScreen(
     val scrollState = rememberScrollState()
     val showSettings = remember { mutableStateOf(false) }
     val showRenamePlaylist = remember { mutableStateOf(false) }
-    val contentName = remember {
-        mutableStateOf("content.name")
-    }
-    val shuffledName = stringResource(R.string.shuffled, contentName.value)
-    var contentArtworkUri = Uri.EMPTY
-    var songList = mutableStateListOf<Song>()
-    var description = "content.description"
-    var albumsList = listOf<Album>()
-    var newPlaylist: Playlist? = null
-
-    when(content) {
-        is Playlist -> {
-            contentName.value = content.name
-            contentArtworkUri = if (content.id > 2 && content.songList.isNotEmpty()) {
-                content.songList.first().imageUrl.toUri()
-            } else {
-                content.artWork
-            }
-            songList = content.songList.toMutableStateList()
-            description = stringResource(R.string.tracks, songList.size)
-            newPlaylist = content
-        }
-        is Artist -> {
-            contentName.value = content.name
-            contentArtworkUri = content.photo.toUri()
-            songList = content.songList.toMutableStateList()
-            albumsList = content.albumList
-            description = stringResource(R.string.albums_tracks, albumsList.size, songList.size)
-            newPlaylist = Playlist(
-                id = content.id,
-                name = contentName.value,
-                songList = songList,
-                artWork = contentArtworkUri,
-            )
-
-        }
-        is Album -> {
-            contentName.value = content.name
-            contentArtworkUri = content.albumCover.toUri()
-            songList = content.songList.toMutableStateList()
-            description = stringResource(R.string.album_by, content.artist)
-            newPlaylist = Playlist(
-                id = content.id.toInt(),
-                name = contentName.value,
-                songList = songList,
-                artWork = contentArtworkUri,
-            )
-        }
-    }
-
-    val onPlayButtonClickLambda = {
-        if (uiState.selectedPlaylist!!.name == contentName.value){
-            if (uiState.playerState == PlayerState.PLAYING){
-                onEvent(DetailScreenEvent.PauseSong)
-            } else if(uiState.selectedSong != null){
-                onEvent(DetailScreenEvent.ResumeSong)
-            } else {
-                onEvent(DetailScreenEvent.OnSongSelected(songList[0]))
-                onEvent(DetailScreenEvent.ResumeSong)
-
-            }
-        } else {
-            onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
-        }
-    }
-
 
     // Fetch the dynamic image based on the imageUri
-    var bitmap by remember { mutableStateOf<Bitmap?>(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(0xFF454343.toInt()) }) }
-    LaunchedEffect(content) {
-        bitmap = albumCoverImage(contentArtworkUri?: DataProvider.getDefaultCover(), context)
+    var bitmap by remember {
+        mutableStateOf<Bitmap?>(
+            Bitmap.createBitmap(
+                100,
+                100,
+                Bitmap.Config.ARGB_8888
+            ).apply { eraseColor(0xFF454343.toInt()) })
+    }
+    LaunchedEffect(contentUiState) {
+        bitmap = albumCoverImage(contentUiState.contentArtworkUri, context)
     }
 
     bitmap?.let { image ->
@@ -133,55 +104,44 @@ fun DetailScreen(
         val dominantColors = listOf(Color(swatch.rgb), MaterialTheme.colorScheme.surface)
         val dominantGradient = remember(swatch) { dominantColors }
         // Define gradients and swatches based on the content being displayed
-        val surfaceGradient = DataProvider.surfaceGradient(SettingsKeys.isSystemDark(context)).asReversed()
+        val surfaceGradient =
+            DataProvider.surfaceGradient(SettingsKeys.isSystemDark(context)).asReversed()
 
         Box(modifier = Modifier.fillMaxSize()) {
             AnimatedGradientBackgroundBox(dominantGradient)
 
             TopSectionOverlay(
-                contentName = contentName.value,
-                contentArtworkUri = contentArtworkUri,
-                description = description,
+                contentName = contentUiState.contentName,
+                contentArtworkUri = contentUiState.contentArtworkUri,
+                description = contentUiState.contentDescription,
                 scrollState = scrollState,
                 gradient = surfaceGradient
             )
 
             BottomScrollableContent(
                 uiState = uiState,
-                onEvent = onEvent,
-                contentName = contentName.value,
-                songList = songList,
-                albumsList = albumsList,
+                contentName = contentUiState.contentName,
+                description = contentUiState.contentDescription,
+                songList = contentUiState.contentSongList.toMutableStateList(),
+                albumsList = contentUiState.contentAlbumsList,
                 scrollState = scrollState,
                 showSettings = showSettings,
-                onSongListItemClick = {
-                    if (uiState.selectedPlaylist!!.songList == songList){
-                        onEvent(DetailScreenEvent.OnSongSelected(it))
-                        onEvent(DetailScreenEvent.PlaySong)
-                    } else {
-                        onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
-                    } },
-                onSongListItemLikeClick ={ onEvent(DetailScreenEvent.OnSongLikeClick(it))},
-                onPlayButtonClick = onPlayButtonClickLambda,
-                onShuffleClick = {
-                    newPlaylist = newPlaylist!!.copy(
-                        name = shuffledName,
-                        songList = songList.shuffled()
-                    )
-                    onEvent(DetailScreenEvent.OnPlaylistChange(newPlaylist!!))
-                },
+                onSongListItemClick = { onEvent(DetailScreenEvent.onSongListItemClick(it)) },
+                onSongListItemLikeClick = { onEvent(DetailScreenEvent.OnSongLikeClick(it)) },
+                onPlayButtonClick = { onEvent(DetailScreenEvent.OnPlayButtonClick) },
+                onShuffleClick = { onEvent(DetailScreenEvent.ShufflePlay) },
                 onAlbumCardClick = onAlbumCardClick,
                 onAddTracksClick = onAddTracksClick,
                 onSongListItemSettingsClick = onSongListItemSettingsClick
             )
             AnimatedToolBar(
-                contentName = contentName.value,
+                contentName = contentUiState.contentName,
                 selectedPlaylist = uiState.selectedPlaylist!!,
                 playerState = uiState.playerState,
                 scrollState = scrollState,
                 surfaceGradient = surfaceGradient,
                 onNavigateUp = onNavigateUp,
-                onPlayButtonClick = onPlayButtonClickLambda
+                onPlayButtonClick = { onEvent(DetailScreenEvent.OnPlayButtonClick) }
             )
 
 
@@ -189,28 +149,40 @@ fun DetailScreen(
 
             if (showSettings.value) {
                 DetailSettingsSheet(
-                    content = content,
-                    onDismiss = {showSettings.value = false },
+                    contentUiState = contentUiState,
+                    onDismiss = { showSettings.value = false },
                     onDetailMenuItemClick = { menuItem, playlistId ->
                         showSettings.value = false
-                        when(menuItem) {
+                        when (menuItem) {
 
-                            DataProvider.getString(R.string.download) -> { }
+                            DataProvider.getString(R.string.download) -> {}
                             DataProvider.getString(R.string.play_next) -> {
-                                onEvent(DetailScreenEvent.AddSongListNextToCurrentSong(songList))
+                                onEvent(
+                                    DetailScreenEvent.AddSongListNextToCurrentSong(
+                                        contentUiState.contentSongList
+                                    )
+                                )
                             }
+
                             DataProvider.getString(R.string.add_to_queue) -> {
-                                onEvent(DetailScreenEvent.AddSongListToQueue(songList))
+                                onEvent(DetailScreenEvent.AddSongListToQueue(contentUiState.contentSongList))
                             }
-                            DataProvider.getString(R.string.edit) -> onEditPlayListClick(playlistId)
+
+                            DataProvider.getString(R.string.edit) -> contentUiState.newPlaylist?.let {
+                                onEditPlayListClick(it)
+                            }
                             DataProvider.getString(R.string.rename) -> {
                                 showRenamePlaylist.value = true
 
                             }
-                            DataProvider.getString(R.string.add_tracks) -> onAddTracksClick(playlistId)
+
+                            DataProvider.getString(R.string.add_tracks) -> contentUiState.newPlaylist?.let {
+                                onAddTracksClick(it)
+                            }
+
                             DataProvider.getString(R.string.delete_playlist) -> {
                                 onDeletePlaylistClick()
-                                onEvent(DetailScreenEvent.DeletePlaylist(contentName.value))
+                                onEvent(DetailScreenEvent.DeletePlaylist(contentUiState.contentName))
                             }
                         }
 
@@ -222,45 +194,68 @@ fun DetailScreen(
             RenamePlaylistDialog(
                 allPlaylists = uiState.playlists!!,
                 showRenamePlaylist = showRenamePlaylist
-            ) {newName ->
-                contentName.value = newName
-                onEvent(DetailScreenEvent.RenamePlaylist(newPlaylist!!.id, newName))
+            ) { newName ->
+                onEvent(DetailScreenEvent.RenamePlaylist(contentUiState.contentId, newName))
                 showRenamePlaylist.value = false
             }
         }
 
-
     }
-
-//    SongSettingsItem(showSongSettings, showAddToPlaylistDialog, songSettingsItem, surfaceGradient)
 }
 
+@Preview
+@Composable
+fun PreviewDetailScreen() {
+    val context = LocalContext.current
+    val defaultCoverUri =
+        Uri.parse("android.resource://${context.packageName}/${R.drawable.allsongsplaylist}").toString()
+    val testSong = Song(
+        mediaId = "0",
+        title = "Title",
+        artist = "Artist",
+        album = "Album",
+        genre = "Genre",
+        year = "2024",
+        songUrl = "",
+        imageUrl = defaultCoverUri,
+    )
+
+    val uiState = DetailScreenUiState(
+        loading = false,
+        playlists = listOf(Playlist(0,"All Tracks", emptyList(), defaultCoverUri),Playlist(0,"All Tracks", emptyList(), defaultCoverUri),Playlist(0,"All Tracks", emptyList(), defaultCoverUri)),
+        playerState = PlayerState.STOPPED,
+        selectedSong = testSong,
+        selectedPlaylist = Playlist(0,"All Tracks", emptyList(), defaultCoverUri),
+        errorMessage = null
+    )
 
 
+    val contentUiState = DetailScreenItemUiState(
+        loading = false,
+        contentType = "playlist",
+        contentId = 0,
+        contentName = "AllTracks1111111111111111111111111111111111111111111111111111",
+        contentDescription = "Tracks: 511111111111111111111111111111111111111111111",
+        contentArtworkUri = defaultCoverUri.toUri(),
+        contentSongList = listOf(testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong,testSong),
+        contentAlbumsList = emptyList(),
+        newPlaylist = null,
+        errorMessage = null
 
+    )
 
+    MusicPlayerTheme {
+        DetailScreenBody(
+            uiState = uiState,
+            contentUiState =contentUiState,
+            onEvent = {},
+            onNavigateUp = {},
+            onAlbumCardClick ={},
+            onAddTracksClick ={},
+            onEditPlayListClick ={},
+            onDeletePlaylistClick = {},
+            onSongListItemSettingsClick ={}
+        )
+    }
 
-
-
-//@Preview
-//@Composable
-//fun PreviewDetailScreen() {
-//    val context = LocalContext.current
-//    val defaultCoverUri = Uri.parse("android.resource://${context.packageName}/${R.drawable.stocksongcover}")
-//
-//    val album = Album(
-//        id = 1,
-//        name = "Test",
-//        artist = "Test Artist",
-//        genre = "Pop",
-//        year = "2022",
-//        songList = allSongsList.toMutableList(),
-//        albumCover = defaultCoverUri
-//    )
-////        AlbumsDataProvider.album
-//
-//    ComposeCookBookTheme(true) {
-//        SpotifyDetailScreen(album = album)
-//    }
-//
-//}
+}

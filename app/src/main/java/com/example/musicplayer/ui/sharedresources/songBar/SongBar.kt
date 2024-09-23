@@ -140,12 +140,7 @@ fun TrackInfoPager(
             put(1, song)
             put(2, nextSong)
         }
-
-    val isScrollEnabled = remember {
-        mutableStateOf(true)
-    }
-
-
+    
     val state =
         rememberPagerState(initialPage = 1, pageCount = { albumCoverSnapshotStateList.size })
 
@@ -177,7 +172,6 @@ fun TrackInfoPager(
         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = state,
-                userScrollEnabled = isScrollEnabled.value,
             ) { page ->
 
                 albumCoverSnapshotStateList[page % albumCoverSnapshotStateList.size]?.let { content ->
@@ -194,8 +188,8 @@ fun TrackInfoPager(
                             color = MaterialTheme.colorScheme.onSurface,
                             maxLines = 1,
                             modifier = Modifier.basicMarquee(
-                                initialDelayMillis = 5000,
-                                delayMillis = 5000
+                                initialDelayMillis = 3000,
+                                repeatDelayMillis = 3000
                             )
                         )
                         Text(
@@ -205,8 +199,8 @@ fun TrackInfoPager(
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.basicMarquee(
-                                initialDelayMillis = 5000,
-                                delayMillis = 5000
+                                initialDelayMillis = 3000,
+                                repeatDelayMillis = 3000
                             )
                         )
                     }

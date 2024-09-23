@@ -29,6 +29,17 @@ object DataProvider {
 
     fun getString(@StringRes id: Int): String {
         return appContext.getString(id)
+
+    }
+
+    fun getString(@StringRes id: Int, parameter: Any): String {
+        return appContext.getString(id, parameter)
+
+    }
+
+    fun getString(@StringRes id: Int, numberA: Int, numberB: Int): String {
+        return appContext.getString(id, numberA, numberB)
+
     }
     fun surfaceGradient(isDark: Boolean) =
         if (isDark) listOf(graySurface.copy(alpha = 0.7f), Color.Black.copy(alpha = 0.7f)) else listOf(Color.White.copy(alpha = 0.7f), Color.LightGray.copy(alpha = 0.7f))

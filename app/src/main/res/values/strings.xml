@@ -10,7 +10,7 @@
     <string name="all_tracks">All Tracks</string>
     <string name="favorites">Favorites</string>
     <string name="recently_added">Recently Added</string>
-    <string name="scan_tracks">Scan tracks from device</string>
+    <string name="scan_tracks">Searching for tracks on device</string>
     <string name="no_tracks_found">No tracks Found :(</string>
     <string name="permission_request">Grant access to local media</string>
     <string name="permission_to_read_media">App needs permission to your media in order to be able to play Music.</string>

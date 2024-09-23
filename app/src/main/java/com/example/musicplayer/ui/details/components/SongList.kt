@@ -1,9 +1,12 @@
 package com.example.musicplayer.ui.details.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.details.DetailScreenEvent
 import com.example.musicplayer.ui.details.DetailScreenUiState
@@ -12,8 +15,8 @@ import com.example.musicplayer.ui.sharedresources.song.SongListItem
 @Composable
 fun SongList(
     uiState: DetailScreenUiState,
-    onEvent: (DetailScreenEvent) -> Unit,
     playlist: List<Song>,
+    onLikeClick: (song:Song) -> Unit,
     onSongListItemClick: (song: Song) -> Unit,
     onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
@@ -22,7 +25,7 @@ fun SongList(
         listState.scrollToItem(0)
     }
 
-    Column {
+    Column(modifier = Modifier.padding(top = 8.dp)) {
         playlist.forEach { item ->
             SongListItem(
                 song = item,
@@ -32,9 +35,7 @@ fun SongList(
                 playerState = uiState.playerState,
                 onItemClick = { onSongListItemClick(it) },
                 onSettingsClick = onSongListItemSettingsClick,
-                onLikeClick = {
-                    onEvent(DetailScreenEvent.OnSongLikeClick(it))
-                }
+                onLikeClick = onLikeClick
             )
         }
     }

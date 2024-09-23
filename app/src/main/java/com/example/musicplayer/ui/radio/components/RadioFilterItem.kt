@@ -57,7 +57,7 @@ fun RadioFilterItem(
                 style = typography.headlineSmall.copy(fontSize = 14.sp, fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier
-                    .basicMarquee(initialDelayMillis = 3000, delayMillis = 3000 )
+                    .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000 )
 
 
             )

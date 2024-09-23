@@ -27,14 +27,14 @@ import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.SettingsKeys
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
-import com.example.musicplayer.ui.navigation.Destination
+import com.example.musicplayer.ui.navigation.Home
 import com.example.musicplayer.ui.theme.extensions.generateDominantColorState
 
 @Composable
 fun MusicPlayerScreenAnimatedBackground(
     currentSong: Song?,
     playerState: PlayerState?,
-    currentBackStackEntry: NavBackStackEntry?
+    currentBackStackEntry: NavBackStackEntry? = null
 ) {
     val context = LocalContext.current
     var bitmap by remember {
@@ -121,7 +121,7 @@ fun MusicPlayerScreenAnimatedBackground(
 
 
 
-        if (currentBackStackEntry?.destination?.hierarchy?.any { it.route == Destination.home } == false) {
+        if (currentBackStackEntry?.destination?.hierarchy?.any { it.route == Home::class.qualifiedName } == false) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

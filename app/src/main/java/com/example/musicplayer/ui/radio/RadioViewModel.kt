@@ -62,7 +62,7 @@ class RadioViewModel @Inject constructor(
 
     private fun observeSelectedPlaylist() {
         viewModelScope.launch {
-            getCurrentPlaylistUseCase.invoke().collect { resource ->
+            getCurrentPlaylistUseCase().collect { resource ->
                 radioUiState = when (resource) {
                     is Resource.Success -> radioUiState.copy(
                         loading = false,
@@ -108,7 +108,7 @@ class RadioViewModel @Inject constructor(
         radioUiState = radioUiState.copy(loading = true)
         if (radioUiState.favoriteStations.isNullOrEmpty()) {
             viewModelScope.launch {
-                val stations = getFavoriteStationsUseCase.invoke()
+                val stations = getFavoriteStationsUseCase()
                 radioUiState = radioUiState.copy(
                     loading = false,
                     currentStationsList = stations,
@@ -150,7 +150,7 @@ class RadioViewModel @Inject constructor(
         radioUiState = radioUiState.copy(loading = true)
         if (radioUiState.topRatedStations.isNullOrEmpty()) {
             viewModelScope.launch {
-                val stations = getTopRatedRadioStationsUseCase.invoke(count)
+                val stations = getTopRatedRadioStationsUseCase(count)
                 radioUiState = radioUiState.copy(
                     loading = false,
                     currentStationsList = stations,
@@ -171,7 +171,7 @@ class RadioViewModel @Inject constructor(
         radioUiState = radioUiState.copy(loading = true)
         if (radioUiState.recentlyChangedStations.isNullOrEmpty()) {
             viewModelScope.launch {
-                val stations = getRecentlyChangedRadioStationsUseCase.invoke(count)
+                val stations = getRecentlyChangedRadioStationsUseCase(count)
                 radioUiState = radioUiState.copy(
                     loading = false,
                     currentStationsList = stations,
@@ -200,7 +200,7 @@ class RadioViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            updateFavoriteStationsUseCase.invoke(favorites)
+            updateFavoriteStationsUseCase(favorites)
         }
     }
 
@@ -224,7 +224,7 @@ class RadioViewModel @Inject constructor(
     private fun setPlaylistAndPlay(song: Song, songList: List<Song>) {
         if (songList.isNotEmpty()) {
             viewModelScope.launch {
-                setPlaylistUseCase.invoke(Playlist(666, "Radio", songList, DataProvider.getDefaultCover()))
+                setPlaylistUseCase(Playlist(666, "Radio", songList, DataProvider.getDefaultCover().toString()))
                 playSongUseCase(songList.indexOf(song))
             }
         }

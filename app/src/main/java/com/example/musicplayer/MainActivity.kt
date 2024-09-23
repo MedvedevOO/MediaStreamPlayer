@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material.ExperimentalMaterialApi
+import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.service.MusicService
 import com.example.musicplayer.ui.MusicPlayerApp
 import com.example.musicplayer.ui.theme.MusicPlayerTheme
@@ -19,7 +20,7 @@ class MainActivity : ComponentActivity() {
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        DataProvider.init(this.applicationContext)
         setContent {
             MusicPlayerTheme {
                 MusicPlayerApp(
@@ -31,7 +32,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-
         sharedViewModel.destroyMediaController()
         stopService(Intent(this, MusicService::class.java))
     }

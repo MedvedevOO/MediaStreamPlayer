@@ -52,7 +52,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun observePlaylists() {
         viewModelScope.launch {
-            getPlaylistsUseCase.invoke().collect { resource ->
+            getPlaylistsUseCase().collect { resource ->
                 searchScreenUiState = when (resource) {
                     is Resource.Success -> {
                         searchScreenUiState.copy(
@@ -78,7 +78,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun observeSelectedPlaylist() {
         viewModelScope.launch {
-            getCurrentPlaylistUseCase.invoke().collect { resource ->
+            getCurrentPlaylistUseCase().collect { resource ->
                 searchScreenUiState = when (resource) {
                     is Resource.Success -> searchScreenUiState.copy(
                         loading = false,
@@ -102,7 +102,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun observeCurrentSong() {
         viewModelScope.launch {
-            getCurrentSongUseCase.invoke().collect { resource ->
+            getCurrentSongUseCase().collect { resource ->
                 searchScreenUiState = when (resource) {
                     is Resource.Success -> searchScreenUiState.copy(
                         loading = false,
@@ -124,7 +124,7 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun observePlayerState() {
         viewModelScope.launch {
-            getPlayerStateUseCase.invoke().collect { playerState ->
+            getPlayerStateUseCase().collect { playerState ->
                 searchScreenUiState = searchScreenUiState.copy(
                     loading = false,
                     playerState = playerState
@@ -148,12 +148,12 @@ class SearchScreenViewModel @Inject constructor(
 
     private fun setDefaultPlaylistAndPlay(song: Song) {
         viewModelScope.launch {
-            setPlaylistUseCase.invoke(searchScreenUiState.allSongsPlaylist!!)
+            setPlaylistUseCase(searchScreenUiState.allSongsPlaylist!!)
             searchScreenUiState.allSongsPlaylist?.songList?.indexOf(song)?.let { song ->
                 playSongUseCase(song)
             }
         }
     }
 
-    private fun addOrRemoveFromFavorites(song: Song) = addOrRemoveFavoriteSongUseCase.invoke(song)
+    private fun addOrRemoveFromFavorites(song: Song) = addOrRemoveFavoriteSongUseCase(song)
 }

@@ -35,7 +35,6 @@ import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.ui.theme.typography
 
 @SuppressLint("SuspiciousIndentation")
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuickAccessItem(
     playlist: Playlist,
@@ -43,7 +42,6 @@ fun QuickAccessItem(
 ) {
     var painter1 = rememberAsyncImagePainter(DataProvider.getDefaultCover())
     var painter2 = rememberAsyncImagePainter(DataProvider.getDefaultCover())
-    val context = LocalContext.current
     if (playlist.songList.isNotEmpty()) { painter1 = rememberAsyncImagePainter(playlist.songList[0].imageUrl.toUri())}
     if (playlist.songList.size >= 2) { painter2 = rememberAsyncImagePainter(playlist.songList[1].imageUrl.toUri())}
     val recentlyAddedArtists = mutableListOf<String>()
@@ -99,7 +97,7 @@ fun QuickAccessItem(
             Text(
                 recentlyAddedArtists.toString().trim('[',']'),
                 modifier = Modifier
-                    .basicMarquee(initialDelayMillis = 3000, delayMillis = 3000 )
+                    .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000 )
                 ,
                 style = typography.titleSmall.copy(fontSize = 12.sp, fontWeight = FontWeight.Bold ))
         }

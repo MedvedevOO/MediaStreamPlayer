@@ -1,6 +1,6 @@
 package com.example.musicplayer.ui
 
-import android.widget.Toast
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -25,29 +25,26 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.example.musicplayer.R
-import com.example.musicplayer.data.DataProvider
 import com.example.musicplayer.data.PermissionHandler
 import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Artist
@@ -56,21 +53,21 @@ import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.addsongstoplaylist.AddSongsToPlaylistScreen
 import com.example.musicplayer.ui.details.DetailScreen
-import com.example.musicplayer.ui.details.DetailScreenEvent
-import com.example.musicplayer.ui.details.DetailScreenViewModel
 import com.example.musicplayer.ui.editplaylist.EditPlaylistScreen
 import com.example.musicplayer.ui.home.HomeScreen
-import com.example.musicplayer.ui.home.HomeViewModel
-import com.example.musicplayer.ui.sharedresources.MusicPlayerScreenAnimatedBackground
 import com.example.musicplayer.ui.library.LibraryScreen
-import com.example.musicplayer.ui.library.LibraryScreenViewModel
-import com.example.musicplayer.ui.navigation.Destination
-import com.example.musicplayer.ui.radio.RadioEvent
+import com.example.musicplayer.ui.navigation.AddSongs
+import com.example.musicplayer.ui.navigation.CustomNavType
+import com.example.musicplayer.ui.navigation.Detail
+import com.example.musicplayer.ui.navigation.EditPlaylist
+import com.example.musicplayer.ui.navigation.Home
+import com.example.musicplayer.ui.navigation.Library
+import com.example.musicplayer.ui.navigation.Radio
+import com.example.musicplayer.ui.navigation.Search
 import com.example.musicplayer.ui.radio.RadioScreen
-import com.example.musicplayer.ui.radio.RadioViewModel
 import com.example.musicplayer.ui.search.SearchScreen
-import com.example.musicplayer.ui.search.SearchScreenViewModel
 import com.example.musicplayer.ui.settings.AppSettingsSheet
+import com.example.musicplayer.ui.sharedresources.MusicPlayerScreenAnimatedBackground
 import com.example.musicplayer.ui.sharedresources.TopPageBar
 import com.example.musicplayer.ui.sharedresources.song.SongSettingsBottomSheet
 import com.example.musicplayer.ui.sharedresources.songBar.SongBar
@@ -80,6 +77,7 @@ import com.example.musicplayer.ui.viewmodels.SharedViewModel
 import com.example.musicplayer.ui.viewmodels.SharedViewModelEvent
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import kotlin.reflect.typeOf
 
 @Composable
 fun MusicPlayerApp(sharedViewModel: SharedViewModel) {
@@ -103,7 +101,6 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
     )
     val context = LocalContext.current
 
-    val isInitialized = rememberSaveable { mutableStateOf(false) }
     val scaffoldState = rememberBottomSheetScaffoldState()
     val radioScaffoldState = rememberBottomSheetScaffoldState()
     val showSongBar = remember { mutableStateOf(false) }
@@ -111,41 +108,18 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
     val showAppSettings = remember { mutableStateOf(false) }
     val showSongSettings = remember { mutableStateOf(false) }
     val showAddToPlaylistDialog = remember { mutableStateOf(false) }
-    val songSettingsItem = remember {
-        mutableStateOf(
-            //Todo: иправить костыль
-            Song(
-                mediaId = "",
-                title = "Test Song",
-                artist = "Test Artist",
-                album = " Test Album",
-                imageUrl = DataProvider.getDefaultCover().toString(),
-                genre = "Pop",
-                year = "2022",
-                songUrl = ""
-            )
-        )
-    }
-    if (!isInitialized.value) {
-
-        LaunchedEffect(key1 = Unit) {
-            if (storagePermissionsState.allPermissionsGranted) {
-//                mainViewModel.onEvent(HomeEvent.FetchSong)
-                isInitialized.value = true
-            }
-
-
-        }
+    val songSettingsItem: MutableState<Song?> = remember {
+        mutableStateOf(null)
     }
 
     LaunchedEffect(currentBackStackEntry) {
         showSongBar.value = musicControllerUiState.playerState != PlayerState.STOPPED
     }
     val menuItems = listOf(
-        Pair(Destination.home, Icons.Outlined.Home),
-        Pair(Destination.radio, Icons.Outlined.Radio),
-        Pair(Destination.search, Icons.Outlined.Search),
-        Pair(Destination.library, Icons.Outlined.LibraryMusic),
+        Pair(Home, Icons.Outlined.Home),
+        Pair(Radio, Icons.Outlined.Radio),
+        Pair(Search, Icons.Outlined.Search),
+        Pair(Library, Icons.Outlined.LibraryMusic),
     )
     val bottomNavBackground = MaterialTheme.colorScheme.background
     val itemColors = NavigationBarItemColors(
@@ -160,19 +134,28 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
     Scaffold(
         topBar = {
             if (currentDestination?.hierarchy?.any {
-                    it.route?.startsWith(
-                        "detail",
+                    it.route?.contains(
+                        Detail::class.qualifiedName.toString(),
                         true
-                    ) == false
-                } == true) {
+                    ) == false &&
+                            it.route?.contains(
+                                EditPlaylist::class.qualifiedName.toString(),
+                                true
+                            ) == false &&
+                            it.route?.contains(
+                                AddSongs::class.qualifiedName.toString(),
+                                true
+                            ) == false
+                } == true
+                ) {
                 TopPageBar(pageName = currentDestinationName, showAppSettings = showAppSettings)
             }
         },
         bottomBar = {
 
             if (currentDestination?.hierarchy?.any {
-                    it.route?.startsWith(
-                        "detail",
+                    it.route?.contains(
+                        Detail::class.qualifiedName.toString(),
                         true
                     ) == false
                 } == true) {
@@ -192,7 +175,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                 }
                             },
                             colors = itemColors,
-                            selected = currentDestination.hierarchy.any { it.route == screen.first },
+                            selected = currentDestination.hierarchy.any { it.route == screen.first::class.qualifiedName },
                             onClick = {
                                 navController.navigate(screen.first) {
                                     popUpTo(navController.graph.findStartDestination().id) {
@@ -201,6 +184,10 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                     launchSingleTop = true
                                     restoreState = true
                                 }
+                                Log.d(
+                                    "destination changed to:",
+                                    navController.currentDestination?.hierarchy?.first().toString()
+                                )
                             }
                         )
                     }
@@ -222,18 +209,22 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                 .padding(innerPadding)
         ) {
 
-            NavHost(navController = navController, startDestination = Destination.home) {
+            NavHost(navController = navController, startDestination = Home) {
 
-                composable(route = Destination.home) {
-                    val mainViewModel: HomeViewModel = hiltViewModel()
+                composable<Home> {
+
                     HomeScreen(
                         storagePermissionsState = storagePermissionsState,
-                        homeUiState = mainViewModel.homeUiState,
                         scaffoldState = scaffoldState,
-                        onEvent = mainViewModel::onEvent,
                         musicControllerUiState = musicControllerUiState,
                         onQuickAccessItemClick = {
-                            navController.navigate("detail/playlist/${it.id}")
+                            navController.navigate(
+                                Detail(
+                                    type = "playlist",
+                                    id = it.id
+                                )
+                            )
+//                            navController.navigate("detail/playlist/${it.id}")
                         },
                         onSongListItemSettingsClick = {
                             showSongSettings.value = true
@@ -242,39 +233,25 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                     )
                 }
 
-                composable(route = Destination.radio) {
-                    val radioViewModel: RadioViewModel = hiltViewModel()
-                    LaunchedEffect(Unit) {
-                        radioViewModel.onEvent(RadioEvent.FetchPopularStations)
-                    }
+                composable<Radio> {
                     RadioScreen(
                         scaffoldState = radioScaffoldState,
                         currentSong = sharedViewModel.musicControllerUiState.currentSong,
-                        playerState = sharedViewModel.musicControllerUiState.playerState,
-                        radioUiState = radioViewModel.radioUiState,
-                        onRadioEvent = radioViewModel::onEvent
+                        playerState = sharedViewModel.musicControllerUiState.playerState
                     )
                 }
 
-                composable(route = Destination.search) {
-                    val searchScreenViewModel: SearchScreenViewModel = hiltViewModel()
+                composable<Search> {
                     SearchScreen(
-                        uiState = searchScreenViewModel.searchScreenUiState,
-                        onEvent = searchScreenViewModel::onEvent,
                         onSongListItemSettingsClick = {
                             showSongSettings.value = true
                             songSettingsItem.value = it
-
                         }
                     )
                 }
 
-                composable(route = Destination.library) {
-                    val libraryScreenViewModel: LibraryScreenViewModel = hiltViewModel()
-
+                composable<Library> {
                     LibraryScreen(
-                        uiState = libraryScreenViewModel.libraryScreenUiState,
-                        onEvent = libraryScreenViewModel::onEvent,
                         onLibraryItemClick = {
                             var type = ""
                             var id = 0
@@ -296,47 +273,43 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
 
                                 else -> {}
                             }
-                            navController.navigate("detail/$type/$id")
+                            navController.navigate(
+                                Detail(
+                                    type = type,
+                                    id = id
+                                )
+                            )
                         })
                 }
 
-                composable(
-                    route = Destination.detail,
-                    arguments = listOf(
-                        navArgument("type") { type = NavType.StringType },
-                        navArgument("id") { type = NavType.StringType })
-                ) { backStackEntry ->
-                    val detailScreenViewModel: DetailScreenViewModel = hiltViewModel()
-                    val contentType = backStackEntry.arguments?.getString("type")
-                    val id = backStackEntry.arguments?.getString("id")
-                    var content: Any? = null
-                    if (contentType == "album") {
-                        content =
-                            detailScreenViewModel.onEvent(DetailScreenEvent.FindAlbumById(id!!.toInt()))
-                    }
-                    if (contentType == "artist") {
-                        content =
-                            detailScreenViewModel.onEvent(DetailScreenEvent.FindArtistById(id!!.toInt()))
-                    }
-                    if (contentType == "playlist") {
-                        content =
-                            detailScreenViewModel.detailScreenUiState.playlists!!.first { it.id == id!!.toInt() }
-                    }
-
-
+                composable<Detail> { backStackEntry ->
+                    val args = backStackEntry.toRoute<Detail>()
                     DetailScreen(
-                        uiState = detailScreenViewModel.detailScreenUiState,
-                        onEvent = detailScreenViewModel::onEvent,
-                        content = content!!,
+                        contentType = args.type,
+                        contentId = args.id,
+                        contentName = args.name,
                         onNavigateUp = { navController.navigateUp() },
                         onAlbumCardClick = { albumId ->
-                            navController.navigate("detail/album/$albumId")
+                            navController.navigate(
+                                Detail(
+                                    type = "album",
+                                    id = albumId
+                                )
+                            )
                         },
-                        onAddTracksClick = { playlistId ->
-                            navController.navigate("addSongs/$playlistId")
+                        onAddTracksClick = { playlist ->
+                            navController.navigate(
+                                AddSongs(
+                                    playlist = playlist
+                                )
+                            )
                         },
-                        onEditPlayListClick = { playlistId ->
-                            navController.navigate("editPlaylist/$playlistId")
+                        onEditPlayListClick = { playlist ->
+                            navController.navigate(
+                                EditPlaylist(
+                                    playlist = playlist
+                                )
+                            )
                         },
                         onDeletePlaylistClick = {
                             navController.popBackStack()
@@ -350,19 +323,18 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
 
                 }
 
-                composable(
-                    route = Destination.addSongs,
-                    arguments = listOf(navArgument("id") { type = NavType.StringType })
+                composable<AddSongs>(
+                    typeMap = mapOf(typeOf<Playlist>() to CustomNavType.playlistType)
                 ) { backStackEntry ->
-                    val id = backStackEntry.arguments?.getString("id")
-                    var playlist =
-                        sharedViewModel.onEvent(SharedViewModelEvent.FindPlaylistById(id!!.toInt())) as Playlist
+                    val args = backStackEntry.toRoute<AddSongs>()
+                    val songList = remember { mutableStateOf(args.playlist.songList) }
                     AddSongsToPlaylistScreen(
                         allSongsList = musicControllerUiState.songs!!,
-                        playlist = playlist,
+                        songList = songList.value,
                         onAddClicked = {
-                            playlist = playlist.copy(
-                                songList = playlist.songList.toMutableList().apply { add(it) }
+                            songList.value = songList.value.toMutableList().apply { add(it) }
+                            val playlist = args.playlist.copy(
+                                songList = songList.value
                             )
                             sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(playlist))
                         },
@@ -370,13 +342,11 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                     )
                 }
 
-                composable(
-                    route = Destination.editPlaylist,
-                    arguments = listOf(navArgument("id") { type = NavType.StringType })
+                composable<EditPlaylist>(
+                    typeMap = mapOf(typeOf<Playlist>() to CustomNavType.playlistType)
                 ) { backStackEntry ->
-                    val id = backStackEntry.arguments?.getString("id")
-                    val playlist =
-                        sharedViewModel.onEvent(SharedViewModelEvent.FindPlaylistById(id!!.toInt())) as Playlist
+                    val args = backStackEntry.toRoute<EditPlaylist>()
+                    val playlist = args.playlist
                     EditPlaylistScreen(
                         playlist = playlist,
                         navController = navController,
@@ -413,90 +383,91 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         songSettingsItem.value = it
                     },
                     onGotoArtistClick = {
-                        val authorId = sharedViewModel.onEvent(
-                            SharedViewModelEvent.FindArtistIdByName(musicControllerUiState.currentSong.artist)
-                        ) as Int
-                        navController.navigate("detail/artist/$authorId")
+                        navController.navigate(
+                            Detail(
+                                type = "artist",
+                                name = musicControllerUiState.currentSong.artist
+                            )
+                        )
                         showPlayer.value = false
                     },
                     onGotoAlbumClick = {
-                        val albumId = sharedViewModel.onEvent(
-                            SharedViewModelEvent.FindAlbumIdByName(musicControllerUiState.currentSong.album)
-                        ) as Int
-                        navController.navigate("detail/album/$albumId")
+                        navController.navigate(
+                            Detail(
+                                type = "album",
+                                name = musicControllerUiState.currentSong.album
+                            )
+                        )
                         showPlayer.value = false
                     }
-
-
                 )
-
             }
 
             if (showAppSettings.value) {
                 AppSettingsSheet(showAppSettings)
             }
 
-            SongSettingsBottomSheet(
-                playlists = musicControllerUiState.playlists ?: emptyList(),
-                selectedPlaylist = musicControllerUiState.selectedPlaylist?.songList ?: emptyList(),
-                currentSong = musicControllerUiState.currentSong,
-                showSongSettings = showSongSettings,
-                showAddToPlaylistDialog = showAddToPlaylistDialog,
-                songSettingsItem = songSettingsItem.value,
-                onOkAddPlaylistClick = { newPlaylist ->
-
-                    val newSongList = newPlaylist.songList.toMutableList()
-                        .apply { add(songSettingsItem.value) }
-                    val resultList = newPlaylist.copy(
-                        songList = newSongList,
-                        artWork = songSettingsItem.value.imageUrl.toUri()
-                    )
-                    sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(resultList))
-                    val toastText =
-                        context.getString(R.string.track_added_to_playlist, resultList.name)
-                    Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
-                    showAddToPlaylistDialog.value = false
-
-                },
-                onPlaylistToAddSongChosen = {
-                    sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(it))
-                },
-                onDetailMenuItemClick = { menuItem, song ->
-                    showSongSettings.value = false
-                    showPlayer.value = false
-                    when (menuItem) {
-                        context.getString(R.string.download) -> {}
-                        context.getString(R.string.add_to_playlist_variant) -> showAddToPlaylistDialog.value =
-                            true
-
-                        context.getString(R.string.add_to_queue) -> sharedViewModel.onEvent(
-                            SharedViewModelEvent.AddSongListToQueue(listOf(song))
+            if (showSongSettings.value && songSettingsItem.value != null) {
+                SongSettingsBottomSheet(
+                    playlists = musicControllerUiState.playlists,
+                    selectedPlaylist = musicControllerUiState.selectedPlaylist?.songList ?: emptyList(),
+                    currentSong = musicControllerUiState.currentSong,
+                    showSongSettings = showSongSettings,
+                    showAddToPlaylistDialog = showAddToPlaylistDialog,
+                    songSettingsItem = songSettingsItem.value!!,
+                    onOkAddPlaylistClick = { newPlaylist ->
+                        sharedViewModel.onEvent(
+                            SharedViewModelEvent.AddSongToNewPlaylist(
+                                newPlaylist,
+                                songSettingsItem.value!!,
+                                context
+                            )
                         )
+                        showAddToPlaylistDialog.value = false
+                    },
+                    onPlaylistToAddSongChosen = {
+                        sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(it))
+                    },
+                    onDetailMenuItemClick = { menuItem, song ->
+                        showSongSettings.value = false
+                        showPlayer.value = false
+                        when (menuItem) {
+                            context.getString(R.string.download) -> {}
+                            context.getString(R.string.add_to_playlist_variant) -> showAddToPlaylistDialog.value =
+                                true
 
-                        context.getString(R.string.play_next) -> sharedViewModel.onEvent(
-                            SharedViewModelEvent.AddSongNextToCurrentSong(song)
-                        )
+                            context.getString(R.string.add_to_queue) -> sharedViewModel.onEvent(
+                                SharedViewModelEvent.AddSongListToQueue(listOf(song))
+                            )
 
-                        context.getString(R.string.go_to_artist) -> {
-                            val authorId = sharedViewModel.onEvent(
-                                SharedViewModelEvent.FindArtistIdByName(song.artist)
-                            ) as Int
-                            navController.navigate("detail/artist/$authorId")
+                            context.getString(R.string.play_next) -> sharedViewModel.onEvent(
+                                SharedViewModelEvent.AddSongNextToCurrentSong(song)
+                            )
+
+                            context.getString(R.string.go_to_artist) -> {
+                                navController.navigate(
+                                    Detail(
+                                        type = "artist",
+                                        name = song.artist
+                                    )
+                                )
+
+                            }
+
+                            context.getString(R.string.go_to_album) -> {
+                                navController.navigate(
+                                    Detail(
+                                        type = "album",
+                                        name = song.album
+                                    )
+                                )
+                            }
 
                         }
-
-                        context.getString(R.string.go_to_album) -> {
-                            val albumId = sharedViewModel.onEvent(
-                                SharedViewModelEvent.FindAlbumIdByName(song.album)
-                            ) as Int
-                            navController.navigate("detail/album/$albumId")
-
-
-                        }
-
                     }
-                }
-            )
+                )
+            }
+
         }
 
     }
@@ -504,10 +475,10 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
 
 fun getCurrentDestinationName(route: String?): Int {
     return when (route) {
-        "home" -> R.string.app_name
-        "radio" -> R.string.nav_radio
-        "search" -> R.string.nav_search
-        "library" -> R.string.nav_library
+        Home::class.qualifiedName -> R.string.app_name
+        Radio::class.qualifiedName -> R.string.nav_radio
+        Search::class.qualifiedName -> R.string.nav_search
+        Library::class.qualifiedName -> R.string.nav_library
         else -> R.string.nav_home
     }
 }

@@ -1,7 +1,9 @@
 package com.example.musicplayer.ui.sharedresources.song
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,7 @@ import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.theme.typography
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SongListItem(
     song: Song,
@@ -87,15 +90,19 @@ fun SongListItem(
         ) {
             Text(
                 text = song.title,
+                maxLines = 1,
                 style = typography.headlineMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000)
+
+                )
             Text(
                 text = song.artist,
                 style = typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000)
             )
         }
 

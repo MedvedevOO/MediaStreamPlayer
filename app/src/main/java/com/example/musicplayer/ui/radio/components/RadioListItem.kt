@@ -109,14 +109,15 @@ fun RadioListItem(
                 color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 modifier = Modifier
-                    .basicMarquee(initialDelayMillis = 3000, delayMillis = 3000 )
+                    .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000 )
             )
             Text(
                 text = radioStation.country,
                 style = typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000)
             )
         }
 

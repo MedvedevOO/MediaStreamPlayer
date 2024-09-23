@@ -27,12 +27,17 @@ import com.example.musicplayer.ui.addsongstoplaylist.components.AddSongsToPlayli
 import com.example.musicplayer.ui.addsongstoplaylist.components.SongListChooseItem
 
 @Composable
-fun AddSongsToPlaylistScreen(allSongsList: List<Song>, playlist: Playlist, onAddClicked: (song: Song) -> Unit, onBackClick: () -> Unit) {
+fun AddSongsToPlaylistScreen(
+    allSongsList: List<Song>,
+    songList: List<Song>,
+    onAddClicked: (song: Song) -> Unit,
+    onBackClick: () -> Unit
+) {
     val context = LocalContext.current
     val surfaceGradient = DataProvider.surfaceGradient(SettingsKeys.isSystemDark(context)).asReversed()
     var searchText by remember { mutableStateOf("") }
 
-    val filteredSongs = filterEditSongs(allSongsList, searchText, playlist.songList.toList())
+    val filteredSongs = filterEditSongs(allSongsList, searchText, songList)
     Box(
         modifier = Modifier
             .fillMaxSize()

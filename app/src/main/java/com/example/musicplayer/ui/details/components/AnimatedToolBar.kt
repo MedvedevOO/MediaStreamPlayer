@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
@@ -40,8 +44,9 @@ fun AnimatedToolBar(
     playerState: PlayerState?,
     scrollState: ScrollState, surfaceGradient: List<Color>,
     onPlayButtonClick: () -> Unit,
-    onNavigateUp: () -> Unit) {
-    val colors = IconButtonColors(
+    onNavigateUp: () -> Unit
+) {
+    val colors = ButtonColors(
         containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
         contentColor = MaterialTheme.colorScheme.onSurface,
         disabledContainerColor = Color.Gray,
@@ -64,64 +69,18 @@ fun AnimatedToolBar(
                     .padding(horizontal = 8.dp, vertical = 8.dp)
             ) {
 
-                IconButton(
-                    onClick = onNavigateUp
-                    ,
-                    colors= colors,
+                Button(
+                    elevation = ButtonDefaults.buttonElevation(),
+                    shape = CircleShape,
+                    onClick = onNavigateUp,
+                    contentPadding = PaddingValues(0.dp),
+                    colors = colors,
                     modifier = Modifier.size(48.dp)
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape),
-                        imageVector = Icons.Default.ArrowBackIosNew, tint = MaterialTheme.colorScheme.onSurface,
-                        contentDescription = null
-                    )
+                )
+                {
+                    Icon(imageVector = Icons.Default.ArrowBackIosNew, contentDescription = "PLay")
                 }
-                Spacer(modifier = Modifier
-                    .width(256.dp)
-                    .weight(1f))
-//                IconButton(
-//                    onClick = {
-//                        currentScreen.value = NavType.SEARCH
-//                        activity?.finish()
-//                    },
-//                    colors= colors,
-//                    modifier = Modifier.size(48.dp)
-//                ) {
-//                    Icon(
-//                        modifier = Modifier
-//                            .size(24.dp)
-//                            .clip(CircleShape),
-//                        imageVector = Icons.Default.Search, tint = MaterialTheme.colorScheme.onSurface,
-//                        contentDescription = null
-//                    )
-//                }
-
-                Spacer(modifier = Modifier.width(8.dp))
-
-//                IconButton(
-//                    onClick = {
-//                        onSettingsClicked()
-//                    },
-//                    colors= colors,
-//                    modifier = Modifier.size(48.dp)
-//                ) {
-//                    Icon(
-//                        modifier = Modifier
-//                            .size(24.dp)
-//                            .clip(CircleShape),
-//                        imageVector = Icons.Default.MoreVert, tint = MaterialTheme.colorScheme.onSurface,
-//                        contentDescription = null
-//                    )
-//                }
-
-
-            }
-
-            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally ) {
                 Text(
-
                     text = contentName, // vanish-able text on top
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -130,8 +89,7 @@ fun AnimatedToolBar(
                         .padding(vertical = 8.dp)
                         .alpha(((scrollState.value + 0.001f) / 1000).coerceIn(0f, 1f))
                 )
-
-                if (scrollState.value >= 1044) {
+                if (scrollState.value >= 1054) {
                     PlayButton(
                         contentName = contentName,
                         selectedPlaylist = selectedPlaylist,
@@ -139,9 +97,24 @@ fun AnimatedToolBar(
                         onPlayButtonClick = onPlayButtonClick
 
                     )
+                } else {
+                    Spacer(modifier = Modifier.fillMaxWidth()
+                        .height(48.dp))
                 }
-
             }
+//
+//            Row(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .height(72.dp)
+//                    .padding(top = 8.dp),
+//                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//
+//
+//
+//            }
 
         }
 

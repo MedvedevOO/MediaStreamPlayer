@@ -48,9 +48,6 @@ fun ImagePager(
         put(2,next.value)
     }
     val state = rememberPagerState(initialPage = 1, pageCount = { albumCoverSnapshotStateList.size})
-    val isScrollEnabled = remember {
-        mutableStateOf(true)
-    }
 
     LaunchedEffect(currentSong) {
         when(currentSong.songUrl) {
@@ -83,7 +80,6 @@ fun ImagePager(
     HorizontalPager(
         state = state,
         verticalAlignment = Alignment.CenterVertically,
-        userScrollEnabled = isScrollEnabled.value,
         contentPadding = PaddingValues(horizontal = 28.dp),  // Adjust this value to control the visibility of neighboring pages
         pageSpacing = 16.dp , // Adjust this value to control the space between items
     ) { page ->

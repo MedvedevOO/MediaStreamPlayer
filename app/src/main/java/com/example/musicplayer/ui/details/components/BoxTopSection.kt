@@ -49,8 +49,8 @@ fun BoxTopSection(
     val dynamicAlpha = 1f - ((scrollState.value + 0.00f) / 1000).coerceIn(0f, 1f)
 
     val dynamicValue =
-        if (250.dp - Dp(scrollState.value / 50f) < 10.dp) 10.dp //prevent going 0 cause crash
-        else 250.dp - Dp(scrollState.value / 20f)
+        if (300.dp - Dp(scrollState.value / 50f) < 10.dp) 10.dp //prevent going 0 cause crash
+        else 300.dp - Dp(scrollState.value / 20f)
 
     val animateImageSize = animateDpAsState(dynamicValue, label = "animateImageSize").value
 
@@ -58,7 +58,7 @@ fun BoxTopSection(
 
         Spacer(
             modifier = Modifier
-                .height(64.dp)
+                .height(72.dp)
                 .fillMaxWidth()
         )
 
@@ -71,24 +71,6 @@ fun BoxTopSection(
                 .clip(shape),
             alpha = dynamicAlpha
 
-        )
-        Text(
-            text = contentName,
-            maxLines = 1,
-            style = typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold),
-            modifier = Modifier
-                .padding(8.dp)
-                .alpha(dynamicAlpha)
-                .basicMarquee(delayMillis = 2000, initialDelayMillis = 2000),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-
-        Text(
-            text = description,
-            style = typography.titleLarge,
-            modifier = Modifier
-                .padding(4.dp)
-                .alpha(dynamicAlpha)
         )
     }
 }

@@ -49,9 +49,9 @@ fun EditPlaylistScreen(
                 onOkClick = {
                     if (playlist.id > 2) {
                         playlist.artWork = if (editedSongList.size > 0) {
-                            editedSongList[0].imageUrl.toUri()
+                            editedSongList[0].imageUrl
                         } else {
-                            DataProvider.getDefaultCover()
+                            DataProvider.getDefaultCover().toString()
                         }
                     }
 

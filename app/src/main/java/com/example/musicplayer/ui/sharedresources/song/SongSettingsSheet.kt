@@ -49,7 +49,7 @@ import com.example.musicplayer.R
 import com.example.musicplayer.data.SettingsKeys.isSystemDark
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.ui.library.AddNewPlaylistDialog
+import com.example.musicplayer.ui.sharedresources.AddNewPlaylistDialog
 import com.example.musicplayer.ui.theme.graySurface
 import com.example.musicplayer.ui.theme.typography
 
@@ -78,11 +78,6 @@ fun SongSettingsSheet(
     if (selectedPlaylist.contains(song)){
         menuItems.remove(stringResource(R.string.add_to_queue))
     }
-    //TODO: подумать
-//    if (currentScreen.value == NavType.LIBRARY) {
-//        menuItems.remove(stringResource(R.string.go_to_artist))
-//        menuItems.remove(stringResource(R.string.go_to_album))
-//    }
 
     if (song.songUrl == currentSong?.songUrl) {
         menuItems.remove(stringResource(R.string.play_next))
@@ -135,7 +130,6 @@ fun SongSettingsBottomSheet(
     onDetailMenuItemClick: (menuItem: String, song: Song) -> Unit
 ) {
     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
-    if (showSongSettings.value) {
         SongSettingsSheet(
             song = songSettingsItem,
             currentSong = currentSong,
@@ -144,7 +138,6 @@ fun SongSettingsBottomSheet(
             background = MaterialTheme.colorScheme.background,
             onDetailMenuItemClick = onDetailMenuItemClick
         )
-    }
 
     if(showAddToPlaylistDialog.value) {
         AddSongToPlaylistSheet(

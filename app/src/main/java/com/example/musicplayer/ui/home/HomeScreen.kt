@@ -1,7 +1,6 @@
 package com.example.musicplayer.ui.home
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -20,11 +19,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.ui.home.components.BoxTopSectionForMainScreen
-import com.example.musicplayer.ui.home.components.NoTracksOrPermitBox
+import com.example.musicplayer.ui.home.components.NoPermitBox
+import com.example.musicplayer.ui.home.components.NoTracksBox
 import com.example.musicplayer.ui.home.components.QuickAccessItem
 import com.example.musicplayer.ui.sharedresources.song.SongListScrollable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -36,18 +37,23 @@ import com.google.accompanist.permissions.MultiplePermissionsState
 @Composable
 fun HomeScreen(
     storagePermissionsState: MultiplePermissionsState,
-    homeUiState: HomeUiState,
     scaffoldState: BottomSheetScaffoldState,
-    onEvent: (HomeEvent) -> Unit,
     musicControllerUiState: MusicControllerUiState,
     onQuickAccessItemClick: (playlist: Playlist) -> Unit,
     onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
+    val mainViewModel: HomeViewModel = hiltViewModel()
+    val homeUiState = mainViewModel.homeUiState
+    val onEvent = mainViewModel::onEvent
     val density = LocalDensity.current
     val offsetInPx = remember { mutableFloatStateOf(0f) }
     val offsetInDp = remember { mutableStateOf(0.dp) }
     val dynamicAlphaForTopPart = ((offsetInPx.floatValue - 200f) / 1000).coerceIn(0f, 1f)
-
+    LaunchedEffect(storagePermissionsState.allPermissionsGranted) {
+        if (storagePermissionsState.allPermissionsGranted) {
+            onEvent(HomeEvent.FetchData)
+        }
+    }
     val favoritesSongList =  if (!homeUiState.playlists.isNullOrEmpty() && homeUiState.playlists.size >= 3) {
         homeUiState.playlists[2].songList
     } else {
@@ -55,6 +61,14 @@ fun HomeScreen(
     }
     with(homeUiState) {
         when {
+            !storagePermissionsState.allPermissionsGranted -> {
+                NoPermitBox(
+                    allPermissionsGranted = storagePermissionsState.allPermissionsGranted,
+                    shouldShowRationale = storagePermissionsState.shouldShowRationale,
+                    launchMultiplePermissionRequest = { storagePermissionsState.launchMultiplePermissionRequest() }) {
+                    onEvent(HomeEvent.FetchData)
+                }
+            }
             loading == true && storagePermissionsState.allPermissionsGranted -> {
                 Box(modifier = Modifier.fillMaxSize()) {
                     CircularProgressIndicator(
@@ -82,7 +96,7 @@ fun HomeScreen(
                             SongListScrollable(
                                 allSongs = songs,
                                 selectedSongList = selectedPlaylist?.songList ?: emptyList(),
-                                currentSong = musicControllerUiState.currentSong,
+                                currentSong = homeUiState.selectedSong,
                                 favoriteSongs =  favoritesSongList,
                                 playlist = selectedPlaylist?.songList
                                     ?: songs,
@@ -145,17 +159,10 @@ fun HomeScreen(
 
                     }
                 } else {
-                    NoTracksOrPermitBox(storagePermissionsState) {
-//                        onEvent(HomeEvent.FetchSong)
-                    }
+                    NoTracksBox()
                 }
 
 
-            }
-
-
-            else -> {
-                Log.d("HomeScreenErrorMessage", errorMessage.toString())
             }
         }
     }

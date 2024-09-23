@@ -4,7 +4,7 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     alias(libs.plugins.com.google.devtools.ksp)
-    kotlin("plugin.serialization") version "1.9.22"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -61,7 +61,7 @@ dependencies {
     implementation(libs.constraintlayout.compose)
     implementation(libs.palette.ktx)
     implementation(libs.navigation.compose)
-
+    implementation(libs.kotlinx.serialization.json)
     // Lifecycle
     implementation(libs.lifecycle.extensions)
     implementation(libs.bundles.lifecycle)
@@ -75,13 +75,7 @@ dependencies {
     implementation(libs.room.ktx)
 
     //gson
-
     implementation (libs.gson)
-
-
-    //Reorderable
-    implementation(libs.reorderable)
-
 
     // Coil
     implementation(libs.coil)

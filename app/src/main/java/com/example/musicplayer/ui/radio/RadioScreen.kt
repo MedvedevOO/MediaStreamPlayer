@@ -36,6 +36,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.RadioStation
 import com.example.musicplayer.domain.model.Song
@@ -49,10 +50,14 @@ import com.example.musicplayer.ui.search.components.SearchBar
 fun RadioScreen(
     currentSong: Song?,
     scaffoldState: BottomSheetScaffoldState,
-    playerState: PlayerState?,
-    radioUiState: RadioUiState,
-    onRadioEvent: (RadioEvent) -> Unit
+    playerState: PlayerState?
 ) {
+    val radioViewModel: RadioViewModel = hiltViewModel()
+    LaunchedEffect(Unit) {
+        radioViewModel.onEvent(RadioEvent.FetchPopularStations)
+    }
+    val radioUiState = radioViewModel.radioUiState
+    val onRadioEvent = radioViewModel::onEvent
     var searchText by remember { mutableStateOf("") }
     val stations = radioUiState.currentStationsList
     val filteredRadioStations = filterRadioStations(stations, searchText)

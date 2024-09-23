@@ -43,7 +43,7 @@ init {
 
     private fun observePlaylists() {
         viewModelScope.launch {
-            getPlaylistsUseCase.invoke().collect { resource ->
+            getPlaylistsUseCase().collect { resource ->
                 libraryScreenUiState = when (resource) {
                     is Resource.Success -> {
                         libraryScreenUiState.copy(
@@ -65,7 +65,7 @@ init {
 
     private fun observeAlbums() {
         viewModelScope.launch {
-            getAlbumsUseCase.invoke().collect { resource ->
+            getAlbumsUseCase().collect { resource ->
                 libraryScreenUiState = when (resource) {
                     is Resource.Success -> libraryScreenUiState.copy(
                         loading = false,
@@ -85,7 +85,7 @@ init {
 
     private fun observeArtists() {
         viewModelScope.launch {
-            getArtistsUseCase.invoke().collect { resource ->
+            getArtistsUseCase().collect { resource ->
                 libraryScreenUiState = when (resource) {
                     is Resource.Success -> libraryScreenUiState.copy(
                         loading = false,
@@ -121,11 +121,11 @@ init {
 
     private fun newPlaylist(newPlaylist: Playlist) {
         val resultPlaylist = newPlaylist.copy(
-            artWork = newPlaylist.artWork.takeIf { it != DataProvider.getDefaultCover() }
-                ?: newPlaylist.songList.firstOrNull()?.imageUrl?.toUri()
+            artWork = newPlaylist.artWork.takeIf { it != DataProvider.getDefaultCover().toString() }
+                ?: newPlaylist.songList.firstOrNull()?.imageUrl
                 ?: newPlaylist.artWork
         )
-        addNewPlaylistUseCase.invoke(resultPlaylist)
+        addNewPlaylistUseCase(resultPlaylist)
     }
 
     private fun deletePlaylist(playlist: Playlist) {
@@ -138,12 +138,12 @@ init {
 
             libraryScreenUiState = libraryScreenUiState.copy(playlists = newPlaylists)
 
-            deletePlaylistUseCase.invoke(playlist)
+            deletePlaylistUseCase(playlist)
         }
     }
 
     private fun renamePlaylist(id: Int, name: String) {
-        renamePlaylistUseCase.invoke(id, name)
+        renamePlaylistUseCase(id, name)
     }
 
 }

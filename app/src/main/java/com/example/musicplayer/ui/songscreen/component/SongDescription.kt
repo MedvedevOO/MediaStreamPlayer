@@ -1,6 +1,8 @@
 package com.example.musicplayer.ui.songscreen.component
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -32,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.theme.typography
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SongDescription(
     allSongs: List<Song>,
@@ -57,9 +60,11 @@ fun SongDescription(
                 text = song.title,
                 style = typography.headlineMedium.copy(fontSize = 16.sp, fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1,
                 modifier = Modifier
                     .clickable(onClick = onGotoAlbumClick)
-            )
+                    .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000)
+                )
             Text(
                 text = song.artist,
                 style = typography.bodySmall,
@@ -68,7 +73,9 @@ fun SongDescription(
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
                     .clickable(onClick = onGotoArtistClick)
-            )
+                    .basicMarquee(initialDelayMillis = 3000, repeatDelayMillis = 3000)
+
+                )
         }
 
         if (allSongs.contains(song)) {

@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.search.components.SearchBar
@@ -17,10 +18,11 @@ import com.example.musicplayer.ui.sharedresources.song.SongListScrollable
 
 @Composable
 fun SearchScreen(
-    uiState: SearchScreenUiState,
-    onEvent: (SearchScreenEvent) -> Unit,
     onSongListItemSettingsClick: (song: Song) -> Unit
 ) {
+    val searchScreenViewModel: SearchScreenViewModel = hiltViewModel()
+    val uiState = searchScreenViewModel.searchScreenUiState
+    val onEvent = searchScreenViewModel::onEvent
     val allSongsList = uiState.allSongsPlaylist?.songList ?: emptyList()
     var searchText by remember { mutableStateOf("") }
     val filteredSongs = filterSongs(allSongsList, searchText)

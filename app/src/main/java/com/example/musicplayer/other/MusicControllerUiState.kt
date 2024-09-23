@@ -6,7 +6,7 @@ import com.example.musicplayer.domain.model.Song
 data class MusicControllerUiState(
     var loading: Boolean = false,
     var songs: List<Song>? = emptyList(),
-    var playlists: List<Playlist>? = emptyList(),
+    var playlists: List<Playlist> = emptyList(),
     var selectedPlaylist: Playlist? = null,
     val playerState: PlayerState? = null,
     val previousSong: Song? = null,
