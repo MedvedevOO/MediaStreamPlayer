@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.PlaylistAdd
 import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
 import androidx.compose.material.icons.automirrored.filled.QueueMusic
 import androidx.compose.material.icons.filled.Album
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -31,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,7 +55,7 @@ import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.ui.sharedresources.AddNewPlaylistDialog
 import com.example.musicplayer.ui.theme.graySurface
 import com.example.musicplayer.ui.theme.typography
-
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -88,9 +91,7 @@ fun SongSettingsSheet(
         sheetState = rememberModalBottomSheetState(),
         onDismissRequest = onDismiss,
         containerColor = background,
-        modifier = Modifier
-            .height((150 + 60 * menuItems.size).dp)
-            .fillMaxWidth()
+        modifier = Modifier.fillMaxWidth()
     ) {
             LazyColumn(
                 modifier = Modifier
@@ -119,46 +120,20 @@ fun SongSettingsSheet(
 
 @Composable
 fun SongSettingsBottomSheet(
-    playlists: List<Playlist>,
     selectedPlaylist: List<Song>,
     currentSong: Song?,
-    showSongSettings: MutableState<Boolean>,
-    showAddToPlaylistDialog: MutableState<Boolean>,
     songSettingsItem: Song,
-    onOkAddPlaylistClick: (newPlaylist: Playlist) -> Unit,
-    onPlaylistToAddSongChosen: (updatedPlaylist: Playlist) -> Unit,
-    onDetailMenuItemClick: (menuItem: String, song: Song) -> Unit
+    onDetailMenuItemClick: (menuItem: String, song: Song) -> Unit,
+    onDismiss: () -> Unit
 ) {
-    val showCreatePlaylistDialog = remember { mutableStateOf(false) }
         SongSettingsSheet(
             song = songSettingsItem,
             currentSong = currentSong,
             selectedPlaylist = selectedPlaylist,
-            onDismiss = {showSongSettings.value = false},
+            onDismiss = onDismiss,
             background = MaterialTheme.colorScheme.background,
             onDetailMenuItemClick = onDetailMenuItemClick
         )
-
-    if(showAddToPlaylistDialog.value) {
-        AddSongToPlaylistSheet(
-            playlists = playlists,
-            showAddToPlaylistDialog = showAddToPlaylistDialog,
-            songSettingsItem = songSettingsItem,
-            onCreatePlaylistClick = {showCreatePlaylistDialog.value = true},
-            onPlaylistToAddSongChosen = onPlaylistToAddSongChosen
-        )
-    }
-    if (showCreatePlaylistDialog.value) {
-        AddNewPlaylistDialog(
-            onOkClicked = {
-                onOkAddPlaylistClick(it)
-                showCreatePlaylistDialog.value = false
-                          },
-            showDialog = showCreatePlaylistDialog,
-            allPlaylistNames = playlists.map { it.name }
-        )
-    }
-
 
 }
 @SuppressLint("SuspiciousIndentation")

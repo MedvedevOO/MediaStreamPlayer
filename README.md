@@ -28,7 +28,7 @@ MStreamPlayer is an Android application created for playing music with Jetpack C
 - [Hilt](https://dagger.dev/hilt/) - For [dependency injection](https://developer.android.com/training/dependency-injection/hilt-android).
 - [Coil](https://github.com/coil-kt/coil) - An image loading library for Android backed by Kotlin Coroutines.
 - [Pallete API](https://developer.android.com/training/material/palette-colors)
-- [Firebase](https://firebase.google.com/) - Firestore Database and Storage
+- [Firebase](https://firebase.google.com/) - FireStore Database and Storage
 - [Retrofit](https://square.github.io/retrofit/) - HTTP API
 
 

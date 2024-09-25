@@ -42,6 +42,7 @@ import com.example.musicplayer.domain.model.RadioStation
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.radio.components.RadioFilterItem
+import com.example.musicplayer.ui.radio.components.RadioStationList
 import com.example.musicplayer.ui.search.components.SearchBar
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,8 +77,8 @@ fun RadioScreen(
         sheetPeekHeight = (screenHeight - contentHeight), // Ensure minimum peek height
         sheetContent = {
             with(radioUiState) {
-                when {
-                    loading == true -> {
+                when (loading) {
+                    true -> {
                         Box(modifier = Modifier.fillMaxSize()) {
                             CircularProgressIndicator(
                                 color = MaterialTheme.colorScheme.onBackground,

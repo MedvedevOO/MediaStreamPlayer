@@ -47,11 +47,11 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AppSettingsSheet(showAppSettings: MutableState<Boolean>) {
+fun AppSettingsSheet(onDismissRequest: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
         sheetState = sheetState,
-        onDismissRequest = { showAppSettings.value = false },
+        onDismissRequest = onDismissRequest,
         dragHandle = {},
         shape = RoundedCornerShape(0.dp)
     ){
@@ -60,30 +60,10 @@ fun AppSettingsSheet(showAppSettings: MutableState<Boolean>) {
             .background(MaterialTheme.colorScheme.background)
         ) {
             Column {
-                AppSettingsToolBar(sheetState, showAppSettings)
+                AppSettingsToolBar(sheetState,onDismissRequest)
                 Title(text = "General")
                 ThemeDropdownMenu()
                 ColorPalletDropdownMenu()
-
-//                Title(text = "Cloud settings")
-//                if(isDropboxConnected.value) {
-//                    Text(text = "Connected Clouds")
-//                    Text(text = "Dropbox")
-//                }
-//
-//                    Text(text = "Connected Clouds")
-//                    Text(text = "GoogleDrive")
-//                Text(text = SettingsKeys.getSavedDriveOAuthToken(context).toString())
-
-//
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-//                SettingsMenuItem(onItemClick = {})
-
             }
         }
     }

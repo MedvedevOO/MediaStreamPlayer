@@ -24,8 +24,6 @@ import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,13 +33,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.musicplayer.R
@@ -50,13 +48,14 @@ import com.example.musicplayer.domain.model.Album
 import com.example.musicplayer.domain.model.Artist
 import com.example.musicplayer.domain.model.Playlist
 import com.example.musicplayer.domain.model.Song
-import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.addsongstoplaylist.AddSongsToPlaylistScreen
 import com.example.musicplayer.ui.details.DetailScreen
 import com.example.musicplayer.ui.editplaylist.EditPlaylistScreen
 import com.example.musicplayer.ui.home.HomeScreen
 import com.example.musicplayer.ui.library.LibraryScreen
+import com.example.musicplayer.ui.navigation.AddSongToPlaylist
 import com.example.musicplayer.ui.navigation.AddSongs
+import com.example.musicplayer.ui.navigation.AppSettings
 import com.example.musicplayer.ui.navigation.CustomNavType
 import com.example.musicplayer.ui.navigation.Detail
 import com.example.musicplayer.ui.navigation.EditPlaylist
@@ -64,15 +63,18 @@ import com.example.musicplayer.ui.navigation.Home
 import com.example.musicplayer.ui.navigation.Library
 import com.example.musicplayer.ui.navigation.Radio
 import com.example.musicplayer.ui.navigation.Search
+import com.example.musicplayer.ui.navigation.SongScreen
+import com.example.musicplayer.ui.navigation.SongSettings
 import com.example.musicplayer.ui.radio.RadioScreen
 import com.example.musicplayer.ui.search.SearchScreen
 import com.example.musicplayer.ui.settings.AppSettingsSheet
+import com.example.musicplayer.ui.sharedresources.AddNewPlaylistDialog
 import com.example.musicplayer.ui.sharedresources.MusicPlayerScreenAnimatedBackground
 import com.example.musicplayer.ui.sharedresources.TopPageBar
+import com.example.musicplayer.ui.sharedresources.song.AddSongToPlaylistSheet
 import com.example.musicplayer.ui.sharedresources.song.SongSettingsBottomSheet
 import com.example.musicplayer.ui.sharedresources.songBar.SongBar
 import com.example.musicplayer.ui.songscreen.SongScreen
-import com.example.musicplayer.ui.songscreen.SongViewModel
 import com.example.musicplayer.ui.viewmodels.SharedViewModel
 import com.example.musicplayer.ui.viewmodels.SharedViewModelEvent
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -103,18 +105,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val radioScaffoldState = rememberBottomSheetScaffoldState()
-    val showSongBar = remember { mutableStateOf(false) }
-    val showPlayer = remember { mutableStateOf(false) }
-    val showAppSettings = remember { mutableStateOf(false) }
-    val showSongSettings = remember { mutableStateOf(false) }
-    val showAddToPlaylistDialog = remember { mutableStateOf(false) }
-    val songSettingsItem: MutableState<Song?> = remember {
-        mutableStateOf(null)
-    }
 
-    LaunchedEffect(currentBackStackEntry) {
-        showSongBar.value = musicControllerUiState.playerState != PlayerState.STOPPED
-    }
     val menuItems = listOf(
         Pair(Home, Icons.Outlined.Home),
         Pair(Radio, Icons.Outlined.Radio),
@@ -147,8 +138,8 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                 true
                             ) == false
                 } == true
-                ) {
-                TopPageBar(pageName = currentDestinationName, showAppSettings = showAppSettings)
+            ) {
+                TopPageBar(pageName = currentDestinationName) { navController.navigate(AppSettings) }
             }
         },
         bottomBar = {
@@ -227,8 +218,13 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
 //                            navController.navigate("detail/playlist/${it.id}")
                         },
                         onSongListItemSettingsClick = {
-                            showSongSettings.value = true
-                            songSettingsItem.value = it
+                            navController.navigate(
+                                SongSettings(
+                                    it
+                                )
+                            )
+//                            showSongSettings.value = true
+//                            songSettingsItem.value = it
                         }
                     )
                 }
@@ -244,8 +240,11 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                 composable<Search> {
                     SearchScreen(
                         onSongListItemSettingsClick = {
-                            showSongSettings.value = true
-                            songSettingsItem.value = it
+                            navController.navigate(
+                                SongSettings(
+                                    it
+                                )
+                            )
                         }
                     )
                 }
@@ -315,8 +314,11 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                             navController.popBackStack()
                         },
                         onSongListItemSettingsClick = {
-                            showSongSettings.value = true
-                            songSettingsItem.value = it
+                            navController.navigate(
+                                SongSettings(
+                                    it
+                                )
+                            )
                         }
                     )
 
@@ -353,9 +355,125 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         onEvent = sharedViewModel::onEvent
                     )
                 }
+                dialog<AppSettings> {
+                    AppSettingsSheet { navController.navigateUp() }
+                }
+
+                dialog<SongSettings>(
+                    typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
+                ) { backStackEntry ->
+                    val args = backStackEntry.toRoute<SongSettings>()
+                    SongSettingsBottomSheet(
+                        selectedPlaylist = musicControllerUiState.selectedPlaylist?.songList
+                            ?: emptyList(),
+                        currentSong = musicControllerUiState.currentSong,
+                        songSettingsItem = args.song,
+                        onDetailMenuItemClick = { menuItem, song ->
+                            when (menuItem) {
+                                context.getString(R.string.download) -> {}
+                                context.getString(R.string.add_to_playlist_variant) -> navController.navigate(
+                                    AddSongToPlaylist(song)
+                                )
+
+                                context.getString(R.string.add_to_queue) -> sharedViewModel.onEvent(
+                                    SharedViewModelEvent.AddSongListToQueue(listOf(song))
+                                )
+
+                                context.getString(R.string.play_next) -> sharedViewModel.onEvent(
+                                    SharedViewModelEvent.AddSongNextToCurrentSong(song)
+                                )
+
+                                context.getString(R.string.go_to_artist) -> {
+                                    navController.navigate(
+                                        Detail(
+                                            type = "artist",
+                                            name = song.artist
+                                        )
+                                    )
+                                }
+
+                                context.getString(R.string.go_to_album) -> {
+                                    navController.navigate(
+                                        Detail(
+                                            type = "album",
+                                            name = song.album
+                                        )
+                                    )
+                                }
+
+                            }
+                        },
+                        onDismiss = { navController.navigateUp() }
+                    )
+                }
+
+                dialog<AddSongToPlaylist>(
+                    typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
+                ) { backStackEntry ->
+                    val args = backStackEntry.toRoute<SongSettings>()
+                    val showCreatePlaylistDialog = remember { mutableStateOf(false) }
+                    AddSongToPlaylistSheet(
+                        playlists = musicControllerUiState.playlists,
+                        songSettingsItem = args.song,
+                        onDismissRequest = { navController.navigateUp() },
+                        onCreatePlaylistClick = { showCreatePlaylistDialog.value = true },
+                        onPlaylistToAddSongChosen = {
+                            sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(it))
+                            navController.navigateUp()
+                        }
+                    )
+                    if (showCreatePlaylistDialog.value) {
+                        AddNewPlaylistDialog(
+                            onOkClicked = { newPlaylist ->
+                                sharedViewModel.onEvent(
+                                    SharedViewModelEvent.AddSongToNewPlaylist(
+                                        newPlaylist,
+                                        args.song,
+                                        context
+                                    )
+                                )
+                                navController.navigateUp()
+                            },
+                            showDialog = showCreatePlaylistDialog,
+                            allPlaylistNames = musicControllerUiState.playlists.map { it.name }
+                        )
+                    }
+                }
+
+
+                dialog<SongScreen> {
+                    SongScreen(
+                        musicControllerUiState = musicControllerUiState,
+                        onSongListItemSettingsClick = {
+                            navController.navigate(
+                                SongSettings(
+                                    it
+                                )
+                            )
+                        },
+                        onDismissRequest = { navController.navigateUp() },
+                        onGotoArtistClick = {
+                            navController.navigate(
+                                Detail(
+                                    type = "artist",
+                                    name = musicControllerUiState.currentSong?.artist
+                                )
+                            )
+                        },
+                        onGotoAlbumClick = {
+                            navController.navigate(
+                                Detail(
+                                    type = "album",
+                                    name = musicControllerUiState.currentSong?.album
+                                )
+                            )
+                        }
+                    )
+                }
+
             }
-            val songViewModel: SongViewModel = hiltViewModel()
-            if (showSongBar.value && sharedViewModel.musicControllerUiState.currentSong != null) {
+
+            if (sharedViewModel.musicControllerUiState.currentSong != null) {
                 SongBar(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -364,110 +482,13 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         .padding(start = 4.dp, bottom = 8.dp, end = 4.dp)
                         .clip(RoundedCornerShape(5.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .clickable { showPlayer.value = true },
-                    onEvent = songViewModel::onEvent,
+                        .clickable { navController.navigate(SongScreen) },
                     playerState = musicControllerUiState.playerState,
                     previousSong = musicControllerUiState.previousSong,
                     song = musicControllerUiState.currentSong,
                     nextSong = musicControllerUiState.nextSong
                 )
             }
-
-            if (showPlayer.value && musicControllerUiState.currentSong != null) {
-                SongScreen(
-                    showScreen = showPlayer,
-                    onEvent = songViewModel::onEvent,
-                    musicControllerUiState = musicControllerUiState,
-                    onSongListItemSettingsClick = {
-                        showSongSettings.value = true
-                        songSettingsItem.value = it
-                    },
-                    onGotoArtistClick = {
-                        navController.navigate(
-                            Detail(
-                                type = "artist",
-                                name = musicControllerUiState.currentSong.artist
-                            )
-                        )
-                        showPlayer.value = false
-                    },
-                    onGotoAlbumClick = {
-                        navController.navigate(
-                            Detail(
-                                type = "album",
-                                name = musicControllerUiState.currentSong.album
-                            )
-                        )
-                        showPlayer.value = false
-                    }
-                )
-            }
-
-            if (showAppSettings.value) {
-                AppSettingsSheet(showAppSettings)
-            }
-
-            if (showSongSettings.value && songSettingsItem.value != null) {
-                SongSettingsBottomSheet(
-                    playlists = musicControllerUiState.playlists,
-                    selectedPlaylist = musicControllerUiState.selectedPlaylist?.songList ?: emptyList(),
-                    currentSong = musicControllerUiState.currentSong,
-                    showSongSettings = showSongSettings,
-                    showAddToPlaylistDialog = showAddToPlaylistDialog,
-                    songSettingsItem = songSettingsItem.value!!,
-                    onOkAddPlaylistClick = { newPlaylist ->
-                        sharedViewModel.onEvent(
-                            SharedViewModelEvent.AddSongToNewPlaylist(
-                                newPlaylist,
-                                songSettingsItem.value!!,
-                                context
-                            )
-                        )
-                        showAddToPlaylistDialog.value = false
-                    },
-                    onPlaylistToAddSongChosen = {
-                        sharedViewModel.onEvent(SharedViewModelEvent.AddNewPlaylist(it))
-                    },
-                    onDetailMenuItemClick = { menuItem, song ->
-                        showSongSettings.value = false
-                        showPlayer.value = false
-                        when (menuItem) {
-                            context.getString(R.string.download) -> {}
-                            context.getString(R.string.add_to_playlist_variant) -> showAddToPlaylistDialog.value =
-                                true
-
-                            context.getString(R.string.add_to_queue) -> sharedViewModel.onEvent(
-                                SharedViewModelEvent.AddSongListToQueue(listOf(song))
-                            )
-
-                            context.getString(R.string.play_next) -> sharedViewModel.onEvent(
-                                SharedViewModelEvent.AddSongNextToCurrentSong(song)
-                            )
-
-                            context.getString(R.string.go_to_artist) -> {
-                                navController.navigate(
-                                    Detail(
-                                        type = "artist",
-                                        name = song.artist
-                                    )
-                                )
-
-                            }
-
-                            context.getString(R.string.go_to_album) -> {
-                                navController.navigate(
-                                    Detail(
-                                        type = "album",
-                                        name = song.album
-                                    )
-                                )
-                            }
-
-                        }
-                    }
-                )
-            }
-
         }
 
     }

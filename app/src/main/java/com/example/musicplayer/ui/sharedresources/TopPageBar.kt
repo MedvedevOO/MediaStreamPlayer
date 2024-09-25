@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.sp
 import com.example.musicplayer.ui.theme.typography
 
 @Composable
-fun TopPageBar(pageName: Int, showAppSettings: MutableState<Boolean>) {
+fun TopPageBar(pageName: Int, onSettingsClick: () -> Unit) {
 //    modifier = Modifier.statusBarsPadding()
     val colors = IconButtonColors(
         containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
@@ -82,7 +82,7 @@ fun TopPageBar(pageName: Int, showAppSettings: MutableState<Boolean>) {
             Spacer(modifier = Modifier.width(8.dp))
 
             IconButton(
-                onClick = { showAppSettings.value = !showAppSettings.value },
+                onClick = onSettingsClick,
                 colors= colors,
                 modifier = Modifier.size(36.dp)
             ) {

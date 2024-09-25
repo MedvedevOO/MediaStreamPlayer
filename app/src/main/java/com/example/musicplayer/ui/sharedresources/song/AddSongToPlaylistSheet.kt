@@ -25,8 +25,8 @@ import com.example.musicplayer.ui.library.components.LibraryHorizontalCardItem
 @Composable
 fun AddSongToPlaylistSheet(
     playlists: List<Playlist>,
-    showAddToPlaylistDialog: MutableState<Boolean>,
     songSettingsItem: Song,
+    onDismissRequest: () -> Unit,
     onCreatePlaylistClick: () -> Unit,
     onPlaylistToAddSongChosen: (updatedPlaylist: Playlist) -> Unit
 ) {
@@ -38,9 +38,7 @@ fun AddSongToPlaylistSheet(
     val toastErrorContent = stringResource(id = R.string.track_already_added_to_that_playlist)
     ModalBottomSheet(
         sheetState = rememberModalBottomSheetState(),
-        onDismissRequest = {
-            showAddToPlaylistDialog.value = false
-        },
+        onDismissRequest = onDismissRequest,
     ) {
         LazyColumn {
             item { LibraryHorizontalAddPlaylistItem(onItemClicked = onCreatePlaylistClick) }
@@ -69,7 +67,7 @@ fun AddSongToPlaylistSheet(
                             Toast.makeText(context,toastErrorContent, Toast.LENGTH_SHORT).show()
                         }
 
-                        showAddToPlaylistDialog.value = false
+                        onDismissRequest()
                     }
                 }
 

@@ -62,6 +62,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.MusicControllerUiState
 import com.example.musicplayer.other.PlayerState
@@ -76,41 +77,42 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SongScreen(
-    showScreen: MutableState<Boolean>,
-    onEvent: (SongEvent) -> Unit,
     musicControllerUiState: MusicControllerUiState,
     onSongListItemSettingsClick: (song: Song) -> Unit,
+    onDismissRequest: () -> Unit,
     onGotoArtistClick: () -> Unit,
     onGotoAlbumClick: () -> Unit
 ) {
-        val scope = rememberCoroutineScope()
-        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ModalBottomSheet(
-            sheetState = sheetState,
-            onDismissRequest = { showScreen.value = false },
-            dragHandle = {},
-            shape = RoundedCornerShape(0.dp)
-        ) {
-            SongScreenBody(
-                allSongs = musicControllerUiState.songs ?: emptyList(),
-                previousSong = musicControllerUiState.previousSong,
-                currentSong = musicControllerUiState.currentSong!!,
-                nextSong = musicControllerUiState.nextSong,
-                playerState = musicControllerUiState.playerState,
-                currentPosition = musicControllerUiState.currentPosition,
-                totalDuration = musicControllerUiState.totalDuration,
-                onNavigateUp = {
-                    scope.launch {
-                        sheetState.hide()
-                        showScreen.value = false
-                    }
-                },
-                onEvent = onEvent,
-                onSongListItemSettingsClick = onSongListItemSettingsClick,
-                onGotoAlbumClick = onGotoAlbumClick,
-                onGotoArtistClick = onGotoArtistClick
-            )
-        }
+    val songViewModel: SongViewModel = hiltViewModel()
+    val onEvent = songViewModel::onEvent
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    ModalBottomSheet(
+        sheetState = sheetState,
+        onDismissRequest = onDismissRequest,
+        dragHandle = {},
+        shape = RoundedCornerShape(0.dp)
+    ) {
+        SongScreenBody(
+            allSongs = musicControllerUiState.songs ?: emptyList(),
+            previousSong = musicControllerUiState.previousSong,
+            currentSong = musicControllerUiState.currentSong!!,
+            nextSong = musicControllerUiState.nextSong,
+            playerState = musicControllerUiState.playerState,
+            currentPosition = musicControllerUiState.currentPosition,
+            totalDuration = musicControllerUiState.totalDuration,
+            onNavigateUp = {
+                scope.launch {
+                    sheetState.hide()
+                    onDismissRequest()
+                }
+            },
+            onEvent = onEvent,
+            onSongListItemSettingsClick = onSongListItemSettingsClick,
+            onGotoAlbumClick = onGotoAlbumClick,
+            onGotoArtistClick = onGotoArtistClick
+        )
+    }
 
 }
 
@@ -279,10 +281,12 @@ fun SongScreenContent(
                     .systemBarsPadding()
             ) {
                 Column {
-                    Row(modifier = Modifier
-                        .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                        .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Start) {
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Start
+                    ) {
                         IconButton(
                             onClick = onClose,
                             colors = IconButtonColors(

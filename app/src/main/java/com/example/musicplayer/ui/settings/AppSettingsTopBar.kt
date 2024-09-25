@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppSettingsToolBar(
     sheetState: SheetState,
-    showAppSettings: MutableState<Boolean>
+    onDismissRequest: () -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val colors = IconButtonColors(
@@ -74,13 +74,13 @@ fun AppSettingsToolBar(
         ) {
             IconButton(
                 onClick = {
-                    coroutineScope.launch{
-                      sheetState.hide()
-                      showAppSettings.value = false
-                  }
+                    coroutineScope.launch {
+                        sheetState.hide()
+                        onDismissRequest()
+                    }
 
 
-                          },
+                },
                 colors = colors,
                 modifier = Modifier.size(48.dp)
             ) {

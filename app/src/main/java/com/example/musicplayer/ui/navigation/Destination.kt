@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
 import com.example.musicplayer.domain.model.Playlist
+import com.example.musicplayer.domain.model.Song
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -37,6 +38,23 @@ data class EditPlaylist(
     val playlist: Playlist
 )
 
+@Serializable
+object SongScreen
+
+@Serializable
+object AppSettings
+
+@Serializable
+data class SongSettings(
+    val song: Song
+)
+
+@Serializable
+data class AddSongToPlaylist(
+    val song: Song
+)
+
+
 object CustomNavType {
     val playlistType  = object : NavType<Playlist>(
         isNullableAllowed = false
@@ -54,6 +72,27 @@ object CustomNavType {
         }
 
         override fun put(bundle: Bundle, key: String, value: Playlist) {
+            bundle.putString(key, Json.encodeToString(value))
+        }
+
+    }
+
+    val songType  = object : NavType<Song>(
+        isNullableAllowed = false
+    ) {
+        override fun get(bundle: Bundle, key: String): Song? {
+            return Json.decodeFromString(bundle.getString(key) ?: return null)
+        }
+
+        override fun parseValue(value: String): Song {
+            return Json.decodeFromString(value)
+        }
+
+        override fun serializeAsValue(value: Song): String {
+            return Uri.encode(Json.encodeToString(value))
+        }
+
+        override fun put(bundle: Bundle, key: String, value: Song) {
             bundle.putString(key, Json.encodeToString(value))
         }
 

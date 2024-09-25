@@ -28,8 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,24 +41,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import com.example.musicplayer.R
 import com.example.musicplayer.domain.model.Song
 import com.example.musicplayer.other.PlayerState
 import com.example.musicplayer.ui.songscreen.SongEvent
+import com.example.musicplayer.ui.songscreen.SongViewModel
 import com.example.musicplayer.ui.theme.typography
 
 @Composable
 fun SongBar(
     modifier: Modifier = Modifier,
-    onEvent: (SongEvent) -> Unit,
     playerState: PlayerState?,
     previousSong: Song?,
     song: Song?,
     nextSong: Song?
 ) {
-//TODO: Заменить иконки на радио
+    val songViewModel: SongViewModel = hiltViewModel()
+    val onEvent = songViewModel::onEvent
     val albumArtPainter: Painter = rememberAsyncImagePainter(
         ImageRequest.Builder(LocalContext.current)
             .data(data = song?.imageUrl?.toUri())
