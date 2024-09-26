@@ -441,7 +441,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                 }
 
 
-                dialog<SongScreen> {
+                composable<SongScreen> {
                     SongScreen(
                         musicControllerUiState = musicControllerUiState,
                         onSongListItemSettingsClick = {
