@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/song_settings_item"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="8dp"
+    android:clipToOutline="true"
+    >
+
+    <!-- Image Section -->
+    <ImageView
+        android:id="@+id/item_image"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:scaleType="centerCrop"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/stocksongcover"
+        android:background="@drawable/rounded_image_shape"
+        android:contentDescription="@null"
+        android:clipToOutline="true"/>
+
+    <!-- Text Section -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <!-- Top Card Text -->
+        <TextView
+            android:id="@+id/top_card_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top Card Text"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface"
+            android:paddingHorizontal="8dp"/>
+
+        <!-- Bottom Card Text -->
+        <TextView
+            android:id="@+id/bottom_card_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bottom Card Text"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:paddingHorizontal="8dp"/>
+    </LinearLayout>
+</LinearLayout>

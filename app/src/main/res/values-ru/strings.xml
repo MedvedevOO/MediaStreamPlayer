@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MStreamPlayer</string>
+    <string name="app_name">BRPlayer</string>
     <string name="nav_home">Домашняя</string>
     <string name="nav_search">Поиск</string>
     <string name="nav_radio">Радио</string>

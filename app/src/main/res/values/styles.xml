@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base App Theme -->
+<!--    <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.DayNight.NoActionBar">-->
+<!--        &lt;!&ndash; Customize your theme &ndash;&gt;-->
+<!--        <item name="colorPrimary">@color/colorPrimary</item>-->
+<!--        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>-->
+<!--        <item name="colorSecondary">@color/colorSecondary</item>-->
+<!--        <item name="colorBackgroundFloating">@color/colorBackground</item>-->
+<!--        <item name="colorSurface">@color/colorSurface</item>-->
+<!--        <item name="colorError">@android:color/holo_red_dark</item>-->
+<!--        &lt;!&ndash; Text Colors &ndash;&gt;-->
+<!--        <item name="colorOnPrimary">@color/colorOnPrimary</item>-->
+<!--        <item name="colorOnSecondary">@color/colorOnSecondary</item>-->
+<!--        <item name="colorOnBackground">@color/colorOnBackground</item>-->
+<!--        <item name="colorOnSurface">@color/colorOnSurface</item>-->
+<!--        <item name="android:textColorPrimary">@color/colorOnBackground</item>-->
+<!--        <item name="android:textColorSecondary">@color/colorOnSurface</item>-->
+<!--        &lt;!&ndash; Customizing typography, shapes, etc. &ndash;&gt;-->
+<!--        <item name="android:fontFamily">@font/your_custom_font</item>-->
+<!--    </style>-->
+
+    <!-- Light Themes for Green, Purple, Blue, and Orange -->
+    <style name="Theme.MusicPlayer.Light.Green" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/green500</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousWhite</item>
+        <item name="colorSurface">@color/seriousWhite</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Light.Purple" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/purple</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousWhite</item>
+        <item name="colorSurface">@color/seriousWhite</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Light.Blue" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/blue500</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousWhite</item>
+        <item name="colorSurface">@color/seriousWhite</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Light.Orange" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/darkerBestOrange</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousWhite</item>
+        <item name="colorSurface">@color/seriousWhite</item>
+    </style>
+
+    <!-- Dark Themes for Green, Purple, Blue, and Orange -->
+    <style name="Theme.MusicPlayer.Dark.Green" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/green200</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousBlack</item>
+        <item name="colorSurface">@color/seriousBlack</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Dark.Purple" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/purple200</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousBlack</item>
+        <item name="colorSurface">@color/seriousBlack</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Dark.Blue" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/blue200</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousBlack</item>
+        <item name="colorSurface">@color/seriousBlack</item>
+    </style>
+
+    <style name="Theme.MusicPlayer.Dark.Orange" parent="Theme.MusicPlayer">
+        <item name="colorPrimary">@color/darkerBestOrange</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorBackgroundFloating">@color/seriousBlack</item>
+        <item name="colorSurface">@color/seriousBlack</item>
+    </style>
+</resources>

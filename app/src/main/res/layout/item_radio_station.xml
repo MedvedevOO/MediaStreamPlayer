@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/rounded_semi_transparent_background"
+    android:backgroundTint="?android:attr/colorBackground"
+    android:backgroundTintMode="src_in"
+    android:padding="2dp"
+    android:gravity="center_vertical">
+
+    <FrameLayout
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:padding="4dp">
+
+        <ImageView
+            android:id="@+id/radio_station_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:background="@drawable/stocksongcover"
+            android:clipToOutline="true"
+            android:contentDescription="@null" />
+
+        <!-- GIF for currently playing -->
+        <ImageView
+            android:id="@+id/currently_playing_gif"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            android:src="@drawable/currently_playing"
+            android:contentDescription="@null" />
+    </FrameLayout>
+
+    <!-- Radio Station Info (Name, Country) -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- Radio Station Name -->
+        <TextView
+            android:id="@+id/radio_station_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="?attr/colorOnSurface" />
+
+        <!-- Radio Station Country -->
+        <TextView
+            android:id="@+id/radio_station_country"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface" />
+    </LinearLayout>
+
+    <!-- Like Button -->
+    <ImageButton
+        android:id="@+id/like_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_favorite_border" />
+</LinearLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="toolbar" type="id" />
+    <item name="toolbar_title" type="id" />
+    <item name="item_image" type="id" />
+    <item name="top_card_text" type="id" />
+    <item name="bottom_card_text" type="id" />
+    <item name="radio_station_name" type="id" />
+    <item name="radio_station_country" type="id" />
+    <item name="currently_playing_gif" type="id" />
+    <item name="radio_station_image" type="id" />
+    <item name="song_seekbar" type="id" />
+    <item name="current_time" type="id" />
+    <item name="total_time" type="id" />
+    <item name="btn_previous" type="id" />
+    <item name="btn_play_pause" type="id" />
+    <item name="btn_next" type="id" />
+</resources>

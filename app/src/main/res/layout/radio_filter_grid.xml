@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.gridlayout.widget.GridLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/radio_filter_grid"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:layout_gravity="center"
+    app:columnCount="2"
+    app:rowCount="2">
+
+    <!-- Button 1 -->
+    <Button
+        android:id="@+id/button_all_radio_stations"
+        android:layout_marginEnd="4dp"
+        android:ellipsize="marquee"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:text="@string/all_radio_stations"
+        android:singleLine="true"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:textColor="?attr/colorOnSurface"
+        app:backgroundTint="?android:attr/colorBackground"
+        android:background="@drawable/rounded_semi_transparent_background"
+        android:marqueeRepeatLimit="marquee_forever"
+        app:layout_row="0"
+        app:layout_column="0"
+        app:layout_columnWeight="1" />
+
+    <!-- Button 2 -->
+    <Button
+        android:id="@+id/button_favorites"
+        android:layout_marginStart="4dp"
+        android:ellipsize="marquee"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:text="@string/favorites"
+        android:singleLine="true"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:textColor="?attr/colorOnSurface"
+        app:backgroundTint="?android:attr/colorBackground"
+        android:background="@drawable/rounded_semi_transparent_background"
+        android:marqueeRepeatLimit="marquee_forever"
+        app:layout_row="0"
+        app:layout_column="1"
+        app:layout_columnWeight="1" />
+
+    <!-- Button 3 -->
+    <Button
+        android:id="@+id/button_popular"
+        android:layout_marginEnd="4dp"
+        android:layout_marginTop="8dp"
+        android:padding="4dp"
+        android:ellipsize="marquee"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:text="@string/popular"
+        android:singleLine="true"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:textColor="?attr/colorOnSurface"
+        app:backgroundTint="?android:attr/colorBackground"
+        android:background="@drawable/rounded_semi_transparent_background"
+        android:marqueeRepeatLimit="marquee_forever"
+        app:layout_row="1"
+        app:layout_column="0"
+        app:layout_columnWeight="1" />
+
+    <!-- Button 4 -->
+    <Button
+        android:id="@+id/button_top_rated"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:ellipsize="marquee"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:text="@string/top_rated"
+        android:singleLine="true"
+        android:textSize="12sp"
+        android:textStyle="normal"
+        android:gravity="center"
+        android:textColor="?attr/colorOnSurface"
+        app:backgroundTint="?android:attr/colorBackground"
+        android:background="@drawable/rounded_semi_transparent_background"
+        android:marqueeRepeatLimit="marquee_forever"
+        app:layout_row="1"
+        app:layout_column="1"
+        app:layout_columnWeight="1" />
+
+</androidx.gridlayout.widget.GridLayout>

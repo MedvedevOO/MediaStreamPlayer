@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/box_top_section_home"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="top">
+
+    <!-- Container for the content -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:layout_gravity="center"
+        android:layout_marginTop="120dp"
+        android:layout_marginBottom="100dp">
+
+        <LinearLayout
+            android:id = "@+id/play_pause_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:padding="8dp">
+
+            <!-- Play/Pause Button -->
+
+            <ImageView
+                android:id="@+id/play_pause_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_round_play_arrow"
+                android:contentDescription="@string/cd_play"
+                app:tint="?attr/colorOnSurface" />
+
+            <!-- Playlist Name -->
+            <TextView
+                android:id="@+id/playlist_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Playlist Name"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:textColor="?attr/colorOnSurface" />
+        </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/get_permissions_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            android:padding="8dp">
+
+            <!-- Play/Pause Button -->
+
+            <ImageView
+                android:id="@+id/get_permissions_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_library_music"
+                android:contentDescription="@string/cd_play"
+                app:tint="?attr/colorOnSurface" />
+
+            <!-- Playlist Name -->
+            <TextView
+                android:id="@+id/get_permissions_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/permission_request"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:textColor="?attr/colorOnSurface" />
+        </LinearLayout>
+        <LinearLayout
+            android:id = "@+id/no_tracks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone"
+            android:padding="8dp">
+
+            <!-- Playlist Name -->
+            <TextView
+                android:id="@+id/no_tracks_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no_tracks_found"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:singleLine="true"
+                android:marqueeRepeatLimit="marquee_forever"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="1"
+                android:textColor="?attr/colorOnSurface" />
+        </LinearLayout>
+
+        <!-- Change Playlist Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/change_playlist_button"
+            style="@style/Widget.MaterialComponents.Button.UnelevatedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:text="@string/change_playlist"
+            android:textColor="?attr/colorOnSurface"
+            app:backgroundTint="?android:attr/colorBackground"
+            android:background="@drawable/round_semi_transparent_background"
+            android:textSize="12sp" />
+
+        <!-- Next Track Information -->
+        <TextView
+            android:id="@+id/next_track_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/next_track"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:layout_marginTop="8dp" />
+
+        <TextView
+            android:id="@+id/next_track_details"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artist - Song Title"
+            android:textSize="14sp"
+            android:textColor="?attr/colorOnSurface"
+            android:textStyle="bold"
+            android:layout_marginTop="4dp" />
+    </LinearLayout>
+</FrameLayout>

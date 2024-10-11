@@ -1,10 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- Green Colors -->
+    <color name="green200">#A5D6A7</color>
+    <color name="green500">#4CAF50</color>
+    <color name="green700">#388E3C</color>
+
+    <!-- Blue Colors -->
+    <color name="blue200">#9FA8DA</color>
+    <color name="blue500">#3F51B5</color>
+    <color name="blue700">#303F9F</color>
+
+    <!-- Purple Colors -->
+    <color name="purple200">#B39DDB</color>
+    <color name="purple">#833AB4</color>
+    <color name="purple700">#512DA8</color>
+
+    <!-- Orange and Black/White Colors -->
+    <color name="darkerBestOrange">#E69500</color>
+    <color name="bestOrange">#FFA500</color>
+    <color name="brighterBestOrange">#FFE500</color>
+
+    <!-- Other Colors -->
+    <color name="seriousBlack">#111111</color>
+    <color name="seriousBlackSemiTransparent">#80111111</color>
+    <color name="seriousWhite">#F5F5F5</color>
+    <color name="seriousWhiteSemiTransparent">#80F5F5F5</color>
+    <!-- Teal and Gray -->
+    <color name="teal200">#80DEEA</color>
+    <color name="graySurface">#2A2A2A</color>
+    <color name="transparent">#00000001</color>
 </resources>

@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -11,7 +12,7 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.musicplayer"
+        applicationId = "com.bearzwayne.musicplayer"
         minSdk = 31
         targetSdk = 34
         versionCode = 1
@@ -47,11 +48,15 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.7"
     }
-    namespace = "com.example.musicplayer"
+    namespace = "com.bearzwayne.musicplayer"
 }
 
 dependencies {
 
+    //navigation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.1")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.1")
+    implementation ("com.github.bumptech.glide:glide:4.11.0")
     implementation(libs.core.ktx)
     implementation(libs.appcompat)
     implementation(libs.material)
@@ -68,6 +73,8 @@ dependencies {
 
     // Coroutines
     implementation(libs.bundles.coroutines)
+    implementation(libs.navigation.fragment)
+    implementation(libs.gridlayout)
 
     // Room
     ksp(libs.room.compiler)

@@ -19,7 +19,9 @@ gson = "2.10.1"
 hilt = "2.49"
 hilt-compiler = "1.2.0"
 hilt-navigation-compose = "1.2.0"
-
+firebase-crashlytics = "19.2.0"
+firebase-analytics = "22.1.2"
+firebase-crashlytics-gradle = "3.0.2"
 kotlin-gradle-plugin = "1.9.21"
 kotlinx-coroutines = "1.8.1"
 kotlinx-serialization-json = "1.6.3"
@@ -41,6 +43,8 @@ room-compiler = "2.6.1"
 room-ktx = "2.6.1"
 com-google-devtools-ksp = "1.9.21-1.0.15"
 org-jetbrains-kotlin-jvm = "1.9.21"
+navigation-fragment = "2.8.1"
+gridlayout = "1.0.0"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist-pager" }
@@ -66,6 +70,9 @@ exoplayer-core = { module = "com.google.android.exoplayer:exoplayer-core", versi
 extension-mediasession = { module = "com.google.android.exoplayer:extension-mediasession", version.ref = "exoplayer" }
 exoplayer-ui = { module = "com.google.android.exoplayer:exoplayer-ui", version.ref = "exoplayer" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "bom-firebase" }
+firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase-crashlytics-gradle" }
+firebase-crashlytics = {module = "com.google.firebase:firebase-crashlytics", version.ref = "firebase-crashlytics"}
+firebase-analytics = {module = "com.google.firebase:firebase-analytics", version.ref = "firebase-analytics"}
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
 google-services = { module = "com.google.gms:google-services", version.ref = "google-services" }
@@ -101,6 +108,8 @@ retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit
 room-common = { module = "androidx.room:room-common", version.ref = "room-common" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-compiler" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-ktx" }
+navigation-fragment = { group = "androidx.navigation", name = "navigation-fragment", version.ref = "navigation-fragment" }
+gridlayout = { group = "androidx.gridlayout", name = "gridlayout", version.ref = "gridlayout" }
 
 
 [bundles]
@@ -151,3 +160,4 @@ lifecycle = [
 com-google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "com-google-devtools-ksp" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "org-jetbrains-kotlin-jvm" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "org-jetbrains-kotlin-jvm" }
+firebase-crashlytics-gradle = {id = "com.google.firebase.crashlytics", version.ref = "firebase-crashlytics-gradle"}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/rounded_semi_transparent_background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- RecyclerView that will scroll over the SearchBar and RadioFilterGrid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/radio_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_gravity="top"
+        android:clipToPadding="false"
+        android:elevation="1dp"
+        android:paddingTop="242dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:listitem="@layout/item_radio_station" />
+
+    <!-- FrameLayout for SearchBar and Filter Grid, which will be behind the RecyclerView -->
+    <FrameLayout
+        android:id="@+id/fixed_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:clickable="true"
+        android:elevation="2dp"
+        android:focusable="true">
+
+        <!-- Search Bar -->
+        <include
+            android:id="@+id/search_bar"
+            layout="@layout/layout_search_bar"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:layout_width="match_parent"
+            android:layout_height="70.dp" />
+
+        <!-- Radio Filter Grid -->
+        <include
+            android:id="@+id/radio_filters"
+            layout="@layout/radio_filter_grid"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="78dp" />
+    </FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

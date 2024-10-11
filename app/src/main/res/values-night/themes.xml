@@ -2,15 +2,18 @@
     <!-- Base application theme. -->
     <style name="Theme.MusicPlayer" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/purple_200</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/black</item>
+        <item name="colorPrimary">@color/darkerBestOrange</item>
+        <item name="colorPrimaryVariant">@color/purple700</item>
+        <item name="colorOnPrimary">@color/seriousBlack</item>
         <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_200</item>
-        <item name="colorOnSecondary">@color/black</item>
+        <item name="colorSecondary">@color/teal200</item>
+        <item name="colorSecondaryVariant">@color/teal200</item>
+        <item name="colorOnSecondary">@color/seriousBlack</item>
         <!-- Status bar color. -->
-        <item name="android:statusBarColor" >@color/black</item>
+        <item name="android:statusBarColor" >@color/seriousBlack</item>
         <!-- Customize your theme here. -->
+
+        <item name="android:colorBackground">@color/seriousBlack</item>
+        <item name="colorSurface">@color/seriousBlackSemiTransparent</item>
     </style>
 </resources>

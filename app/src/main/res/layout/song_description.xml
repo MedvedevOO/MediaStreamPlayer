@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/song_description"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="64dp"
+    android:orientation="horizontal"
+    android:background="@android:color/transparent"
+    android:gravity="center_vertical"
+>
+
+    <!-- Column for Song Title and Artist -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <!-- Song Title -->
+        <TextView
+            android:id="@+id/song_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Song Title"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:singleLine="true"
+            android:clickable="true"
+            android:textColor="?attr/colorOnSurface" />
+
+        <!-- Song Artist -->
+        <TextView
+            android:id="@+id/song_artist"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Artist Name"
+            android:textSize="14sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:clickable="true"
+            android:textColor="?attr/colorOnSurface" />
+    </LinearLayout>
+
+    <!-- Button for More Options -->
+    <ImageButton
+        android:id="@+id/settings_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:gravity="center_vertical"
+        android:backgroundTint="@color/transparent"
+        android:src="@drawable/ic_more_vert"
+        android:contentDescription="@null" />
+
+</LinearLayout>
