@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:996072366982:android:5eb09005dd86a789098207",
+        "mobilesdk_app_id": "1:996072366982:android:4e40db8d016e9a41098207",
         "android_client_info": {
-          "package_name": "com.example.musicplayer"
+          "package_name": "com.bearzwayne.musicplayer"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "996072366982-r0hjdplin9i8ccgi5ro6dc6b67sih40i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.bearzwayne.musicplayer",
+            "certificate_hash": "2b264d17b35778654c54fd64f01c8df261afac72"
+          }
+        },
         {
           "client_id": "996072366982-co02r3gj3b5a7o02s1fmn3krf1jud905.apps.googleusercontent.com",
           "client_type": 3

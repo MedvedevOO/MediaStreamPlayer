@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MStreamPlayer</string>
+    <string name="app_name">BR Player</string>
     <string name="cd_play" translatable="false">Play</string>
     <string name="notification_channel_name" translatable="false">Music Channel</string><string name="notification_channel_description" translatable="false">Shows the currently playing music</string>
     <string name="nav_home">Home</string>
@@ -109,4 +109,14 @@
     <string name="popular">Popular</string>
     <string name="top_rated">Top Rated</string>
     <string name="recently_changed">Recently changed</string>
+    <string name="general">General</string>
+    <string name="theme">Theme: %1$s</string>
+    <string name="color_palette">Color palette: %1$s</string>
+    <string name="match_system">Match system</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="purple">purple</string>
+    <string name="green">green</string>
+    <string name="orange">orange</string>
+    <string name="blue">blue</string>
 </resources>

@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
     alias(libs.plugins.com.google.devtools.ksp)
     alias(libs.plugins.kotlin.serialization)
 }
@@ -11,11 +12,11 @@ android {
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.musicplayer"
-        minSdk = 31
+        applicationId = "com.bearzwayne.musicplayer"
+        minSdk = 30
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 10
+        versionName = "1.0.27"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -47,14 +48,12 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.7"
     }
-    namespace = "com.example.musicplayer"
+    namespace = "com.bearzwayne.musicplayer"
 }
 
 dependencies {
 
     implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.material)
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)
     implementation(libs.activity.compose)
@@ -62,6 +61,11 @@ dependencies {
     implementation(libs.palette.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.kotlinx.serialization.json)
+    implementation(libs.media3.ui)
+    implementation(libs.material3.android)
+    implementation(libs.datastore.core.android)
+    implementation(libs.datastore.preferences)
+
     // Lifecycle
     implementation(libs.lifecycle.extensions)
     implementation(libs.bundles.lifecycle)
@@ -83,21 +87,18 @@ dependencies {
 
     //Accompanist
     implementation(libs.bundles.accompanist)
-    implementation(libs.accompanist.permissions)
+
     // Dagger - Hilt
     implementation(libs.bundles.hilt)
-    implementation(libs.media3.ui)
-    implementation(libs.material3.android)
-    implementation(libs.datastore.core.android)
-    implementation(libs.datastore.preferences)
     ksp(libs.bundles.hilt.ksp)
 
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
     // ExoPlayer
-//    api(libs.bundles.exoplayer)
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.session)
     implementation (libs.media3.exoplayer.hls)

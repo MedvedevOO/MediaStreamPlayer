@@ -1,10 +1,10 @@
-# Music Player
+# Music Player made with Jetpack Compose
 <p align="center">
   <a href="https://android-arsenal.com/api?level=31"><img alt="API" src="https://img.shields.io/badge/API-31%2B-brightgreen"/></a>
   <a href="https://github.com/MedvedevOO"><img alt="Profile" src="https://img.shields.io/badge/GitHub-181717?style=flat&logo=github&logoColor=white"/></a> 
 </p>
 
-MStreamPlayer is an Android application created for playing music with Jetpack Compose framework and ExoPlayer.
+This music player is an Android application created for playing music with Jetpack Compose framework and ExoPlayer.
 
 ## Result
 
@@ -49,6 +49,6 @@ MStreamPlayer is an Android application created for playing music with Jetpack C
 - Change of color pallet and theme of app via settings (preferencesDataStore)
 - Radio playback from radio-browser.info (Retrofit)
 - Search through media
+- Logs Crashes to Crashlytics
 
-
-
+app is available at https://play.google.com/store/apps/details?id=com.bearzwayne.musicplayer

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MStreamPlayer</string>
+    <string name="app_name">BR Player</string>
     <string name="nav_home">Домашняя</string>
     <string name="nav_search">Поиск</string>
     <string name="nav_radio">Радио</string>
@@ -8,7 +8,7 @@
     <string name="cd_back">Назад</string>
     <string name="all_tracks">Все треки</string>
     <string name="favorites">Понравившиеся</string>
-    <string name="recently_added">Недавно добавленные</string>
+    <string name="recently_added">Недавно добавлено</string>
     <string name="scan_tracks">Поиск треков на устройстве</string>
     <string name="no_tracks_found">Ничего не нашли :(</string>
     <string name="permission_request">Предоставить доступ к медиафайлам на устройстве</string>
@@ -68,4 +68,14 @@
     <string name="popular">Популярные</string>
     <string name="top_rated">Рейтинговые</string>
     <string name="recently_changed">Свежие</string>
+    <string name="general">Основные</string>
+    <string name="theme">Тема: %1$s</string>
+    <string name="color_palette">Палитра: %1$s</string>
+    <string name="match_system">Как в системе</string>
+    <string name="dark">Темная</string>
+    <string name="light">Светлая</string>
+    <string name="purple">фиолетовая</string>
+    <string name="green">зеленая</string>
+    <string name="orange">оранжевая</string>
+    <string name="blue">синяя</string>
 </resources>
