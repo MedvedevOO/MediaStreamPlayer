@@ -37,6 +37,7 @@ import com.bearzwayne.musicplayer.ui.theme.bestOrange
 import com.bearzwayne.musicplayer.ui.theme.extensions.generateDominantColorState
 import com.bearzwayne.musicplayer.ui.theme.util.isSystemDark
 import com.bearzwayne.musicplayer.ui.theme.util.surfaceGradient
+import androidx.core.graphics.createBitmap
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
@@ -89,11 +90,7 @@ fun DetailScreenBody(
     val showRenamePlaylist = remember { mutableStateOf(false) }
     var bitmap by remember {
         mutableStateOf<Bitmap?>(
-            Bitmap.createBitmap(
-                100,
-                100,
-                Bitmap.Config.ARGB_8888
-            ).apply { eraseColor(0xFF454343.toInt()) })
+            createBitmap(100, 100).apply { eraseColor(0xFF454343.toInt()) })
     }
     LaunchedEffect(contentUiState) {
         bitmap = albumCoverImage(contentUiState.contentArtworkUri, context)

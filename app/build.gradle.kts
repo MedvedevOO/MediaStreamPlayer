@@ -9,12 +9,12 @@ plugins {
 }
 
 android {
-    compileSdk = 34
 
+    compileSdk = 36
     defaultConfig {
         applicationId = "com.bearzwayne.musicplayer"
         minSdk = 30
-        targetSdk = 34
+        targetSdk = 36
         versionCode = 10
         versionName = "1.0.27"
 
@@ -107,4 +107,15 @@ dependencies {
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
     implementation (libs.logging.interceptor)
+
+    // Testing
+    androidTestImplementation(libs.ultron.android)
+    androidTestImplementation(libs.ultron.allure)
+    androidTestImplementation(libs.ultron.compose)
+    
+    // Mockito для тестирования
+    testImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.android)
+    // Mockito для Kotlin
+    androidTestImplementation(libs.mockito.kotlin)
 }

@@ -34,7 +34,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonColors
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
@@ -43,7 +42,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -75,6 +73,7 @@ import com.bearzwayne.musicplayer.ui.theme.bestOrange
 import com.bearzwayne.musicplayer.ui.theme.extensions.generateDominantColorState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.graphics.createBitmap
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -137,11 +136,7 @@ fun SongScreenBody(
         if (playerState == PlayerState.PLAYING) Icons.Default.Pause else Icons.Default.PlayArrow
     var bitmap by remember {
         mutableStateOf<Bitmap?>(
-            Bitmap.createBitmap(
-                100,
-                100,
-                Bitmap.Config.ARGB_8888
-            ).apply { eraseColor(0xFF454343.toInt()) })
+            createBitmap(100, 100).apply { eraseColor(0xFF454343.toInt()) })
     }
 
     LaunchedEffect(currentSong) {

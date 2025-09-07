@@ -64,7 +64,7 @@ fun RadioScreen(
     val filteredRadioStations = filterRadioStations(stations, searchText)
     val density = LocalDensity.current
     var contentHeight by remember { mutableStateOf(0.dp) }
-    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp - 72.dp
     val offsetInPx = remember { mutableFloatStateOf(0f) }
     val offsetInDp = remember { mutableStateOf(0.dp) }
     val dynamicAlphaForTopPart = ((offsetInPx.floatValue) / 1000).coerceIn(0f, 1f)

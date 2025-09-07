@@ -30,6 +30,7 @@ import com.bearzwayne.musicplayer.ui.navigation.Home
 import com.bearzwayne.musicplayer.ui.theme.extensions.generateDominantColorState
 import com.bearzwayne.musicplayer.ui.theme.util.isSystemDark
 import com.bearzwayne.musicplayer.ui.theme.util.surfaceGradient
+import androidx.core.graphics.createBitmap
 
 @Composable
 fun MusicPlayerScreenAnimatedBackground(
@@ -40,11 +41,7 @@ fun MusicPlayerScreenAnimatedBackground(
     val context = LocalContext.current
     var bitmap by remember {
         mutableStateOf<Bitmap?>(
-            Bitmap.createBitmap(
-                100,
-                100,
-                Bitmap.Config.ARGB_8888
-            ).apply { eraseColor(0xFF454343.toInt()) })
+            createBitmap(100, 100).apply { eraseColor(0xFF454343.toInt()) })
     }
     LaunchedEffect(currentSong) {
         bitmap = albumCoverImage(
@@ -60,7 +57,7 @@ fun MusicPlayerScreenAnimatedBackground(
             null
         }
         if (swatch == null) {
-            bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
+            bitmap = createBitmap(100, 100).apply {
                 eraseColor(0xFF454343.toInt())
             }
             bitmap?.let { image ->
