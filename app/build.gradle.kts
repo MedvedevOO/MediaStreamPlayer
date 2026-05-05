@@ -11,11 +11,11 @@ plugins {
 
 android {
 
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = "com.bearzwayne.musicplayer"
         minSdk = 30
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 10
         versionName = "1.0.27"
 
@@ -43,6 +43,7 @@ android {
         compose = true
     }
     namespace = "com.bearzwayne.musicplayer"
+    compileSdkMinor = 0
 }
 
 dependencies {
