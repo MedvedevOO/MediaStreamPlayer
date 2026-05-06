@@ -2,6 +2,7 @@ package com.bearzwayne.musicplayer.di
 
 import com.bearzwayne.musicplayer.data.localdatabase.DatabaseHelper
 import com.bearzwayne.musicplayer.data.repository.RadioRepositoryImpl
+import com.bearzwayne.musicplayer.domain.radio.RadioBrowserApi
 import com.bearzwayne.musicplayer.domain.repository.RadioRepository
 import dagger.Module
 import dagger.Provides
@@ -15,6 +16,6 @@ object RadioModule {
 
     @Singleton
     @Provides
-    fun provideRadioRepository(databaseHelper: DatabaseHelper): RadioRepository =
-        RadioRepositoryImpl(databaseHelper)
+    fun provideRadioRepository(api: RadioBrowserApi, databaseHelper: DatabaseHelper): RadioRepository =
+        RadioRepositoryImpl(api, databaseHelper)
 }

@@ -1,15 +1,18 @@
 package com.bearzwayne.musicplayer.data.repository
 
 import com.bearzwayne.musicplayer.data.localdatabase.DatabaseHelper
-import com.bearzwayne.musicplayer.data.retrofitinstance.RetrofitInstance
 import com.bearzwayne.musicplayer.domain.model.RadioStation
+import com.bearzwayne.musicplayer.domain.radio.RadioBrowserApi
 import com.bearzwayne.musicplayer.domain.repository.RadioRepository
 
-class RadioRepositoryImpl(private val databaseHelper: DatabaseHelper) : RadioRepository {
+class RadioRepositoryImpl(
+    private val api: RadioBrowserApi,
+    private val databaseHelper: DatabaseHelper
+) : RadioRepository {
 
     override suspend fun getTopStations(count: Int): List<RadioStation> {
         return try {
-            RetrofitInstance.api.getTopStations(count).distinct()
+            api.getTopStations(count).distinct()
         } catch (_: Exception) {
             emptyList()
         }
@@ -17,7 +20,7 @@ class RadioRepositoryImpl(private val databaseHelper: DatabaseHelper) : RadioRep
 
     override suspend fun getTopRatedStations(count: Int): List<RadioStation> {
         return try {
-            RetrofitInstance.api.getTopRatedStations(count).distinct()
+            api.getTopRatedStations(count).distinct()
         } catch (_: Exception) {
             emptyList()
         }
@@ -25,7 +28,7 @@ class RadioRepositoryImpl(private val databaseHelper: DatabaseHelper) : RadioRep
 
     override suspend fun getRecentlyChangedStations(count: Int): List<RadioStation> {
         return try {
-            RetrofitInstance.api.getRecentlyChangedStations(count).distinct()
+            api.getRecentlyChangedStations(count).distinct()
         } catch (_: Exception) {
             emptyList()
         }
@@ -41,7 +44,7 @@ class RadioRepositoryImpl(private val databaseHelper: DatabaseHelper) : RadioRep
 
     override suspend fun searchStations(name: String?, country: String?, language: String?): List<RadioStation> {
         return try {
-            RetrofitInstance.api.searchStations(name, country, language)
+            api.searchStations(name, country, language)
         } catch (_: Exception) {
             emptyList()
         }
