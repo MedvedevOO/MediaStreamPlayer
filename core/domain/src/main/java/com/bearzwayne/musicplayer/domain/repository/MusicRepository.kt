@@ -36,4 +36,6 @@ interface MusicRepository {
     fun removePlaylist(playlist: Playlist)
 
     fun renamePlaylist(id: Int, name: String)
+
+    fun close()
 }

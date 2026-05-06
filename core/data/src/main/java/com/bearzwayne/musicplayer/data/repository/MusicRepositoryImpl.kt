@@ -138,6 +138,10 @@ class MusicRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun close() {
+        context.contentResolver.unregisterContentObserver(contentObserver)
+    }
+
     override fun renamePlaylist(id: Int, name: String) {
         val playlist = playlistsFlow.value.data!!.first { it.id == id }.apply {
             this.name = name

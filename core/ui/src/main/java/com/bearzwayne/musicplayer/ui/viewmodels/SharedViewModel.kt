@@ -13,6 +13,7 @@ import com.bearzwayne.musicplayer.domain.model.Song
 import com.bearzwayne.musicplayer.domain.usecase.AddNewPlaylistUseCase
 import com.bearzwayne.musicplayer.domain.usecase.AddSongNextToCurrentUseCase
 import com.bearzwayne.musicplayer.domain.usecase.AddSongsToQueueUseCase
+import com.bearzwayne.musicplayer.domain.usecase.CloseMusicRepositoryUseCase
 import com.bearzwayne.musicplayer.domain.usecase.DestroyMediaControllerUseCase
 import com.bearzwayne.musicplayer.domain.usecase.GetCurrentSongPositionUseCase
 import com.bearzwayne.musicplayer.domain.usecase.GetPlaylistsUseCase
@@ -36,6 +37,7 @@ class SharedViewModel @Inject constructor(
     private val getCurrentMusicPositionUseCase: GetCurrentSongPositionUseCase,
     private val destroyMediaControllerUseCase: DestroyMediaControllerUseCase,
     private val reconnectMusicControllerUseCase: ReconnectMusicControllerUseCase,
+    private val closeMusicRepositoryUseCase: CloseMusicRepositoryUseCase,
     private val addNewPlaylistUseCase: AddNewPlaylistUseCase,
     private val addSongNextToCurrentUseCase: AddSongNextToCurrentUseCase,
     private val addSongsToQueueUseCase: AddSongsToQueueUseCase,
@@ -72,6 +74,7 @@ class SharedViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         destroyMediaController()
+        closeMusicRepositoryUseCase()
     }
 
     private fun setMediaControllerCallback() {
