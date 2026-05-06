@@ -36,6 +36,8 @@ interface MusicController {
 
     fun destroy()
 
+    fun reconnect()
+
     fun skipToNextSong()
 
     fun skipToPreviousSong()

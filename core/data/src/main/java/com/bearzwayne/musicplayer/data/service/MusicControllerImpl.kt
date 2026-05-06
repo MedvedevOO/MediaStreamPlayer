@@ -29,11 +29,12 @@ import androidx.core.net.toUri
 
 
 class MusicControllerImpl(
-    context: Context,
+    private val context: Context,
     @ApplicationScope private val applicationScope: CoroutineScope
 ) : MusicController {
     private lateinit var mediaItems: List<MediaItem>
     private var mediaControllerFuture: ListenableFuture<MediaController>
+    private var isReleased = false
     private val selectedPlaylistFlow = MutableStateFlow<Resource<Playlist>>(Resource.Loading())
     private val selectedSongFlow = MutableStateFlow<Resource<Song?>>(Resource.Loading())
     private val playerStateFlow = MutableStateFlow(PlayerState.STOPPED)
@@ -278,8 +279,24 @@ class MusicControllerImpl(
     }
 
     override fun destroy() {
+        isReleased = true
         MediaController.releaseFuture(mediaControllerFuture)
         mediaControllerCallback = null
+    }
+
+    override fun reconnect() {
+        if (!isReleased) return
+        isReleased = false
+        val sessionToken = SessionToken(context, ComponentName(context, MusicService::class.java))
+        mediaControllerFuture = MediaController.Builder(context, sessionToken).buildAsync()
+        mediaControllerFuture.addListener({
+            val controller = mediaController
+            if (controller != null) {
+                onMediaControllerReady(controller)
+            } else {
+                Log.e("MusicController", "MediaController is null on reconnect.")
+            }
+        }, MoreExecutors.directExecutor())
     }
 
     override fun skipToNextSong() {

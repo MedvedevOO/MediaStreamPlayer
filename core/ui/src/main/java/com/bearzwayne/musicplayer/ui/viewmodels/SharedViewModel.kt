@@ -17,6 +17,7 @@ import com.bearzwayne.musicplayer.domain.usecase.DestroyMediaControllerUseCase
 import com.bearzwayne.musicplayer.domain.usecase.GetCurrentSongPositionUseCase
 import com.bearzwayne.musicplayer.domain.usecase.GetPlaylistsUseCase
 import com.bearzwayne.musicplayer.domain.usecase.GetSongsUseCase
+import com.bearzwayne.musicplayer.domain.usecase.ReconnectMusicControllerUseCase
 import com.bearzwayne.musicplayer.domain.usecase.SetMediaControllerCallbackUseCase
 import com.bearzwayne.musicplayer.other.MusicControllerUiState
 import com.bearzwayne.musicplayer.other.PlayerState
@@ -34,12 +35,13 @@ class SharedViewModel @Inject constructor(
     private val setMediaControllerCallbackUseCase: SetMediaControllerCallbackUseCase,
     private val getCurrentMusicPositionUseCase: GetCurrentSongPositionUseCase,
     private val destroyMediaControllerUseCase: DestroyMediaControllerUseCase,
+    private val reconnectMusicControllerUseCase: ReconnectMusicControllerUseCase,
     private val addNewPlaylistUseCase: AddNewPlaylistUseCase,
     private val addSongNextToCurrentUseCase: AddSongNextToCurrentUseCase,
     private val addSongsToQueueUseCase: AddSongsToQueueUseCase,
     private val getSongsUseCase: GetSongsUseCase,
     private val getPlaylistsUseCase: GetPlaylistsUseCase,
-    ) : ViewModel() {
+) : ViewModel() {
     private var positionJob: Job? = null
     var musicControllerUiState by mutableStateOf(MusicControllerUiState())
         private set
@@ -67,7 +69,13 @@ class SharedViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        destroyMediaController()
+    }
+
     private fun setMediaControllerCallback() {
+        reconnectMusicControllerUseCase()
         setMediaControllerCallbackUseCase { playerState, currentPlaylist, previousSong, currentSong, nextSong, currentPosition, totalDuration,
                                             isShuffleEnabled, isRepeatOneEnabled ->
             musicControllerUiState = musicControllerUiState.copy(
