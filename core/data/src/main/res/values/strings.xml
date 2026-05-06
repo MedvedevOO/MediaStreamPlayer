@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Used by DatabaseHelper / DataProvider -->
+    <string name="all_tracks">All Tracks</string>
+    <string name="favorites">Favorites</string>
+    <string name="recently_added">Recently Added</string>
+    <!-- Used by RepositoryUtils for unknown metadata -->
+    <string name="unknown_track">Unknown Track</string>
+    <string name="unknown_artist">Unknown Artist</string>
+    <string name="unknown_album">Unknown Album</string>
+    <string name="unknown_genre">Unknown genre</string>
+    <string name="year_unknown">Year unknown</string>
+    <!-- Used by SongMapper (radio songs) and MusicControllerImpl (shuffle playlist) -->
+    <string name="live_radio">Live Radio</string>
+    <string name="mix">Mix</string>
+    <string name="shuffled">%1$s (Shuffled)</string>
+</resources>

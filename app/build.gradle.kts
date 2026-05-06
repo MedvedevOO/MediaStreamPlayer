@@ -48,6 +48,19 @@ android {
 
 dependencies {
 
+    // Modules
+    implementation(project(":core:domain"))
+    implementation(project(":core:data"))
+    implementation(project(":core:ui"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:library"))
+    implementation(project(":feature:detail"))
+    implementation(project(":feature:search"))
+    implementation(project(":feature:player"))
+    implementation(project(":feature:playlist"))
+    implementation(project(":feature:radio"))
+    implementation(project(":feature:settings"))
+
     implementation(libs.core.ktx)
     implementation(platform(libs.compose.bom))
     implementation(libs.bundles.compose)

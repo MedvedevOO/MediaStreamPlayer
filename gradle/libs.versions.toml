@@ -146,6 +146,7 @@ lifecycle = [
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "gradle" }
+android-library = { id = "com.android.library", version.ref = "gradle" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin-gradle-plugin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }

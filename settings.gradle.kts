@@ -17,3 +17,14 @@ dependencyResolutionManagement {
 }
 rootProject.name = "Music Playe"
 include(":app")
+include(":core:domain")
+include(":core:data")
+include(":core:ui")
+include(":feature:home")
+include(":feature:library")
+include(":feature:detail")
+include(":feature:search")
+include(":feature:player")
+include(":feature:playlist")
+include(":feature:radio")
+include(":feature:settings")

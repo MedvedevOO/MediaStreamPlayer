@@ -4,8 +4,6 @@ import android.content.Context
 import com.bearzwayne.musicplayer.data.localdatabase.MusicPlayerDatabase
 import com.bearzwayne.musicplayer.data.remotedatabase.MusicRemoteDatabase
 import com.bearzwayne.musicplayer.data.repository.MusicRepositoryImpl
-import com.bearzwayne.musicplayer.data.repository.RadioRepositoryImpl
-import com.bearzwayne.musicplayer.domain.repository.RadioRepository
 import com.bearzwayne.musicplayer.data.service.MusicControllerImpl
 import com.bearzwayne.musicplayer.domain.repository.MusicRepository
 import com.bearzwayne.musicplayer.domain.service.MusicController
@@ -45,10 +43,6 @@ object AppModule {
         musicRemoteDatabase: MusicRemoteDatabase
     ): MusicRepository =
         MusicRepositoryImpl(context,musicRemoteDatabase)
-
-    @Singleton
-    @Provides
-    fun provideRadioRepository() : RadioRepository = RadioRepositoryImpl()
 
     @Singleton
     @Provides

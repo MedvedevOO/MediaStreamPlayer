@@ -31,8 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.LayoutDirection
@@ -52,11 +52,7 @@ import com.bearzwayne.musicplayer.domain.model.Album
 import com.bearzwayne.musicplayer.domain.model.Artist
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
-import com.bearzwayne.musicplayer.ui.addsongstoplaylist.AddSongsToPlaylistScreen
-import com.bearzwayne.musicplayer.ui.details.DetailScreen
 import com.bearzwayne.musicplayer.ui.editplaylist.EditPlaylistScreen
-import com.bearzwayne.musicplayer.ui.home.HomeScreen
-import com.bearzwayne.musicplayer.ui.library.LibraryScreen
 import com.bearzwayne.musicplayer.ui.navigation.AddSongToPlaylist
 import com.bearzwayne.musicplayer.ui.navigation.AddSongs
 import com.bearzwayne.musicplayer.ui.navigation.AppSettings
@@ -68,9 +64,6 @@ import com.bearzwayne.musicplayer.ui.navigation.Library
 import com.bearzwayne.musicplayer.ui.navigation.Radio
 import com.bearzwayne.musicplayer.ui.navigation.Search
 import com.bearzwayne.musicplayer.ui.navigation.SongSettings
-import com.bearzwayne.musicplayer.ui.radio.RadioScreen
-import com.bearzwayne.musicplayer.ui.search.SearchScreen
-import com.bearzwayne.musicplayer.ui.settings.AppSettingsSheet
 import com.bearzwayne.musicplayer.ui.sharedresources.AddNewPlaylistDialog
 import com.bearzwayne.musicplayer.ui.sharedresources.MusicPlayerScreenAnimatedBackground
 import com.bearzwayne.musicplayer.ui.sharedresources.TopPageBar
@@ -103,7 +96,6 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
     val storagePermissionsState = rememberMultiplePermissionsState(
         permissions = PermissionHandler.permissions()
     )
-    val context = LocalContext.current
     val scaffoldState = rememberBottomSheetScaffoldState()
     val radioScaffoldState = rememberBottomSheetScaffoldState()
     val menuItems = listOf(
@@ -196,7 +188,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
             modifier = Modifier
                 .fillMaxSize()
                 .padding(
-                    top = innerPadding.calculateTopPadding()+ 64.dp,
+                    top = innerPadding.calculateTopPadding()+ 32.dp,
                     bottom = innerPadding.calculateBottomPadding(),
                     start = innerPadding.calculateStartPadding(LayoutDirection.Ltr),
                     end = innerPadding.calculateEndPadding(LayoutDirection.Ltr),
@@ -358,6 +350,12 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                     typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<SongSettings>()
+                    val strDownload = stringResource(R.string.download)
+                    val strAddToPlaylist = stringResource(R.string.add_to_playlist_variant)
+                    val strAddToQueue = stringResource(R.string.add_to_queue)
+                    val strPlayNext = stringResource(R.string.play_next)
+                    val strGoToArtist = stringResource(R.string.go_to_artist)
+                    val strGoToAlbum = stringResource(R.string.go_to_album)
                     SongSettingsBottomSheet(
                         selectedPlaylist = musicControllerUiState.selectedPlaylist?.songList
                             ?: emptyList(),
@@ -365,17 +363,17 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         songSettingsItem = args.song,
                         onDetailMenuItemClick = { menuItem, song ->
                             when (menuItem) {
-                                context.getString(R.string.download) -> {}
-                                context.getString(R.string.add_to_playlist_variant) -> navController.navigate(
+                                strDownload -> {}
+                                strAddToPlaylist -> navController.navigate(
                                     AddSongToPlaylist(song)
                                 )
-                                context.getString(R.string.add_to_queue) -> sharedViewModel.onEvent(
+                                strAddToQueue -> sharedViewModel.onEvent(
                                     SharedViewModelEvent.AddSongListToQueue(listOf(song))
                                 )
-                                context.getString(R.string.play_next) -> sharedViewModel.onEvent(
+                                strPlayNext -> sharedViewModel.onEvent(
                                     SharedViewModelEvent.AddSongNextToCurrentSong(song)
                                 )
-                                context.getString(R.string.go_to_artist) -> {
+                                strGoToArtist -> {
                                     navController.navigate(
                                         Detail(
                                             type = "artist",
@@ -383,7 +381,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                         )
                                     )
                                 }
-                                context.getString(R.string.go_to_album) -> {
+                                strGoToAlbum -> {
                                     navController.navigate(
                                         Detail(
                                             type = "album",
@@ -401,6 +399,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                     typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<SongSettings>()
+                    val context = LocalContext.current
                     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
                     AddSongToPlaylistSheet(
                         playlists = musicControllerUiState.playlists,
@@ -432,6 +431,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
             }
 
             if (sharedViewModel.musicControllerUiState.currentSong != null) {
+                val cdPlay = stringResource(R.string.cd_play)
                 SongBar(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
@@ -441,7 +441,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         .clip(RoundedCornerShape(5.dp))
                         .background(MaterialTheme.colorScheme.surfaceVariant)
                         .semantics {
-                            contentDescription = context.getString(R.string.cd_play)
+                            contentDescription = cdPlay
                         },
                     musicControllerUiState = musicControllerUiState,
                     navController = navController
