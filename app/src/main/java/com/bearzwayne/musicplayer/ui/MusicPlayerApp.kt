@@ -398,7 +398,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                 dialog<AddSongToPlaylist>(
                     typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
                 ) { backStackEntry ->
-                    val args = backStackEntry.toRoute<SongSettings>()
+                    val args = backStackEntry.toRoute<AddSongToPlaylist>()
                     val context = LocalContext.current
                     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
                     AddSongToPlaylistSheet(

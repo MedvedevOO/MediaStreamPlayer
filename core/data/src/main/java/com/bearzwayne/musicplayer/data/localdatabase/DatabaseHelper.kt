@@ -11,9 +11,11 @@ import com.bearzwayne.musicplayer.domain.model.Song
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class DatabaseHelper {
-    private val musicPlayerDatabase: MusicPlayerDatabase = MusicPlayerDatabase.getDatabase()!!
+@Singleton
+class DatabaseHelper @Inject constructor(private val musicPlayerDatabase: MusicPlayerDatabase) {
 
     suspend fun addSongsToDatabase(songs: List<Song>) {
 
@@ -59,9 +61,9 @@ class DatabaseHelper {
         val favorites = Playlist(2, DataProvider.getString(R.string.favorites), emptyList(), DataProvider.getFavoritesCover().toString())
 
 
-        val resultList = mutableListOf(allSongsPlaylist,recentlyAddedPlaylist)
+        val resultList = mutableListOf(allSongsPlaylist, recentlyAddedPlaylist)
         if (musicPlayerDatabase.playlistDao().getPlaylistById(2) == null) {
-            resultList.add(favorites.id, favorites)
+            resultList.add(favorites)
             musicPlayerDatabase.playlistDao().insertPlaylist(favorites)
         }
         val playlistsFromDB: List<Playlist> = musicPlayerDatabase.playlistDao().getAllPlaylists()
@@ -73,9 +75,8 @@ class DatabaseHelper {
 
         playlistsFromDB.forEach {
             if (!resultList.contains(it)) {
-                resultList.add(it.id,it)
+                resultList.add(it)
             }
-
         }
 
         return resultList.toList()

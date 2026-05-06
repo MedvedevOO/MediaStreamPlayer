@@ -9,7 +9,6 @@ import android.os.Looper
 import android.provider.MediaStore
 import com.bearzwayne.musicplayer.data.dto.SongDto
 import com.bearzwayne.musicplayer.data.localdatabase.DatabaseHelper
-import com.bearzwayne.musicplayer.data.localdatabase.MusicPlayerDatabase
 import com.bearzwayne.musicplayer.data.mapper.toSong
 import com.bearzwayne.musicplayer.data.remotedatabase.MusicRemoteDatabase
 import com.bearzwayne.musicplayer.data.utils.DataProvider
@@ -20,18 +19,18 @@ import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
 import com.bearzwayne.musicplayer.domain.repository.MusicRepository
 import com.bearzwayne.musicplayer.other.Resource
-import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
+
 import javax.inject.Inject
 
 class MusicRepositoryImpl @Inject constructor(
     private val context: Context,
-    private val musicRemoteDatabase: MusicRemoteDatabase
+    private val musicRemoteDatabase: MusicRemoteDatabase,
+    private val databaseHelper: DatabaseHelper
 ) :
     MusicRepository {
     private val songsFlow = MutableStateFlow<Resource<List<Song>>>(Resource.Loading(emptyList()))
@@ -41,8 +40,6 @@ class MusicRepositoryImpl @Inject constructor(
     private var contentObserver: ContentObserver
 
     init {
-        DataProvider.init(context)
-        MusicPlayerDatabase.getDatabase(context)
 
         contentObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
             override fun onChange(selfChange: Boolean) {
@@ -67,15 +64,15 @@ class MusicRepositoryImpl @Inject constructor(
             artistsFlow.emit(Resource.Loading())
 
             val songs: MutableList<Song> = fetchSongsFromDevice().map { it.toSong() }.toMutableList()
-            val remoteSongs = musicRemoteDatabase.getAllSongs().await().toObjects<SongDto>().map { it.toSong() }
+            //val remoteSongs = musicRemoteDatabase.getAllSongs().await().toObjects<SongDto>().map { it.toSong() }
 
-            remoteSongs.forEach { song ->
-                if (!songs.contains(song)) {
-                    songs.add(song)
-                }
-            }
-            DatabaseHelper().addSongsToDatabase(songs)
-            val playlists = DatabaseHelper().getAllPlaylists(songs)
+//            remoteSongs.forEach { song ->
+//                if (!songs.contains(song)) {
+//                    songs.add(song)
+//                }
+//            }
+            databaseHelper.addSongsToDatabase(songs)
+            val playlists = databaseHelper.getAllPlaylists(songs)
             val albums = createAlbumsFromSongs(songs)
             val artists = createArtistsFromSongs(songs, albums)
 
@@ -116,11 +113,10 @@ class MusicRepositoryImpl @Inject constructor(
     override fun addOrRemoveFavoriteSong(song: Song) {
         CoroutineScope(Dispatchers.IO).launch {
             val allPlaylists = playlistsFlow.value.data ?: emptyList()
-            allPlaylists[2].songList =
-                DatabaseHelper().putOrRemoveFromFavorites(song, allPlaylists[2])
+            val favoritePlaylist = allPlaylists.firstOrNull { it.id == 2 } ?: return@launch
+            favoritePlaylist.songList = databaseHelper.putOrRemoveFromFavorites(song, favoritePlaylist)
             updatePlaylists()
         }
-
     }
 
     override fun addNewPlaylist(newPlaylist: Playlist) {
@@ -131,14 +127,14 @@ class MusicRepositoryImpl @Inject constructor(
         )
 
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseHelper().writeSinglePlayListToDB(resultPlaylist)
+            databaseHelper.writeSinglePlayListToDB(resultPlaylist)
             updatePlaylists()
         }
     }
 
     override fun removePlaylist(playlist: Playlist) {
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseHelper().deleteSinglePlayListFromDB(playlist)
+            databaseHelper.deleteSinglePlayListFromDB(playlist)
             updatePlaylists()
         }
     }
@@ -149,14 +145,14 @@ class MusicRepositoryImpl @Inject constructor(
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            DatabaseHelper().writeSinglePlayListToDB(playlist)
+            databaseHelper.writeSinglePlayListToDB(playlist)
             updatePlaylists()
         }
     }
 
     private suspend fun updatePlaylists() {
         val songs = fetchSongsFromDevice().map { it.toSong() }
-        val playlists = DatabaseHelper().getAllPlaylists(songs)
+        val playlists = databaseHelper.getAllPlaylists(songs)
         playlistsFlow.emit(Resource.Success(playlists))
     }
 

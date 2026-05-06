@@ -22,7 +22,9 @@ import com.bearzwayne.musicplayer.other.MusicControllerUiState
 import com.bearzwayne.musicplayer.other.PlayerState
 import com.bearzwayne.musicplayer.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
@@ -38,7 +40,7 @@ class SharedViewModel @Inject constructor(
     private val getSongsUseCase: GetSongsUseCase,
     private val getPlaylistsUseCase: GetPlaylistsUseCase,
     ) : ViewModel() {
-
+    private var positionJob: Job? = null
     var musicControllerUiState by mutableStateOf(MusicControllerUiState())
         private set
 
@@ -81,14 +83,7 @@ class SharedViewModel @Inject constructor(
             )
 
             if (playerState == PlayerState.PLAYING) {
-                viewModelScope.launch {
-                    while (true) {
-                        delay(3.seconds)
-                        musicControllerUiState = musicControllerUiState.copy(
-                            currentPosition = getCurrentMusicPositionUseCase()
-                        )
-                    }
-                }
+                startPositionUpdates()
             }
         }
     }
@@ -96,6 +91,20 @@ class SharedViewModel @Inject constructor(
     fun destroyMediaController() {
         destroyMediaControllerUseCase()
     }
+
+    fun startPositionUpdates() {
+        positionJob?.cancel()
+        positionJob = viewModelScope.launch {
+            while (isActive) {
+                delay(3.seconds)
+                musicControllerUiState = musicControllerUiState.copy(
+                    currentPosition = getCurrentMusicPositionUseCase()
+                )
+            }
+        }
+    }
+
+    fun stopPositionUpdates() { positionJob?.cancel() }
 
     private fun observeSongs() {
         viewModelScope.launch {

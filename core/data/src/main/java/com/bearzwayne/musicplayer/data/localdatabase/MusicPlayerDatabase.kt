@@ -36,18 +36,12 @@ abstract class MusicPlayerDatabase : RoomDatabase() {
 
         fun getDatabase(context: Context): MusicPlayerDatabase {
             return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
+                INSTANCE ?: Room.databaseBuilder(
                     context.applicationContext,
                     MusicPlayerDatabase::class.java,
                     "Music_player"
-                ).build()
-                INSTANCE = instance
-                instance
+                ).build().also { INSTANCE = it }
             }
-        }
-
-        fun getDatabase(): MusicPlayerDatabase? {
-            return INSTANCE
         }
     }
 

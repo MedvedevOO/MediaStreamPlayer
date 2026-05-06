@@ -1,6 +1,7 @@
 package com.bearzwayne.musicplayer.di
 
 import android.content.Context
+import com.bearzwayne.musicplayer.data.localdatabase.DatabaseHelper
 import com.bearzwayne.musicplayer.data.localdatabase.MusicPlayerDatabase
 import com.bearzwayne.musicplayer.data.remotedatabase.MusicRemoteDatabase
 import com.bearzwayne.musicplayer.data.repository.MusicRepositoryImpl
@@ -40,17 +41,14 @@ object AppModule {
     @Provides
     fun provideMusicRepository(
         @ApplicationContext context: Context,
-        musicRemoteDatabase: MusicRemoteDatabase
+        musicRemoteDatabase: MusicRemoteDatabase,
+        databaseHelper: DatabaseHelper
     ): MusicRepository =
-        MusicRepositoryImpl(context,musicRemoteDatabase)
+        MusicRepositoryImpl(context, musicRemoteDatabase, databaseHelper)
 
     @Singleton
     @Provides
     fun provideMusicController(@ApplicationContext context: Context): MusicController =
         MusicControllerImpl(context)
-
-    @Singleton
-    @Provides
-    fun provideContext(@ApplicationContext context: Context): Context = context
 }
 
