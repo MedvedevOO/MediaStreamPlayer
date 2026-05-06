@@ -21,8 +21,11 @@ object Search
 object Library
 
 @Serializable
+enum class ContentType { Album, Artist, Playlist }
+
+@Serializable
 data class Detail(
-    val type: String,
+    val type: ContentType,
     val id: Int? = null,
     val name: String? = null
 )

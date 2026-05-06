@@ -1,5 +1,6 @@
 package com.bearzwayne.musicplayer.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -24,6 +25,7 @@ import androidx.compose.material3.NavigationBarItemColors
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,6 +59,7 @@ import com.bearzwayne.musicplayer.ui.navigation.AddSongToPlaylist
 import com.bearzwayne.musicplayer.ui.navigation.AddSongs
 import com.bearzwayne.musicplayer.ui.navigation.AppSettings
 import com.bearzwayne.musicplayer.ui.navigation.CustomNavType
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 import com.bearzwayne.musicplayer.ui.navigation.Detail
 import com.bearzwayne.musicplayer.ui.navigation.EditPlaylist
 import com.bearzwayne.musicplayer.ui.navigation.Home
@@ -104,6 +107,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
         Pair(Search, Icons.Outlined.Search),
         Pair(Library, Icons.Outlined.LibraryMusic),
     )
+    val context = LocalContext.current
     val bottomNavBackground = MaterialTheme.colorScheme.surfaceVariant
     val itemColors = NavigationBarItemColors(
         selectedIconColor = MaterialTheme.colorScheme.primary,
@@ -114,6 +118,12 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
         disabledIconColor = Color.Gray,
         disabledTextColor = Color.LightGray
     )
+
+    LaunchedEffect(Unit) {
+        sharedViewModel.userMessage.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -204,7 +214,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         onQuickAccessItemClick = {
                             navController.navigate(
                                 Detail(
-                                    type = "playlist",
+                                    type = ContentType.Playlist,
                                     id = it.id
                                 )
                             )
@@ -242,26 +252,26 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                 composable<Library> {
                     LibraryScreen(
                         onLibraryItemClick = {
-                            var type = ""
+                            var contentType = ContentType.Playlist
                             var id = 0
                             when (it) {
                                 is Album -> {
-                                    type = "album"
+                                    contentType = ContentType.Album
                                     id = it.id.toInt()
                                 }
                                 is Artist -> {
-                                    type = "artist"
+                                    contentType = ContentType.Artist
                                     id = it.id
                                 }
                                 is Playlist -> {
-                                    type = "playlist"
+                                    contentType = ContentType.Playlist
                                     id = it.id
                                 }
                                 else -> {}
                             }
                             navController.navigate(
                                 Detail(
-                                    type = type,
+                                    type = contentType,
                                     id = id
                                 )
                             )
@@ -279,7 +289,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                         onAlbumCardClick = { albumId ->
                             navController.navigate(
                                 Detail(
-                                    type = "album",
+                                    type = ContentType.Album,
                                     id = albumId
                                 )
                             )
@@ -376,7 +386,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                 strGoToArtist -> {
                                     navController.navigate(
                                         Detail(
-                                            type = "artist",
+                                            type = ContentType.Artist,
                                             name = song.artist
                                         )
                                     )
@@ -384,7 +394,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                 strGoToAlbum -> {
                                     navController.navigate(
                                         Detail(
-                                            type = "album",
+                                            type = ContentType.Album,
                                             name = song.album
                                         )
                                     )
@@ -399,7 +409,6 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                     typeMap = mapOf(typeOf<Song>() to CustomNavType.songType)
                 ) { backStackEntry ->
                     val args = backStackEntry.toRoute<AddSongToPlaylist>()
-                    val context = LocalContext.current
                     val showCreatePlaylistDialog = remember { mutableStateOf(false) }
                     AddSongToPlaylistSheet(
                         playlists = musicControllerUiState.playlists,
@@ -417,8 +426,7 @@ fun MusicPlayerNavHost(navController: NavHostController, sharedViewModel: Shared
                                 sharedViewModel.onEvent(
                                     SharedViewModelEvent.AddSongToNewPlaylist(
                                         newPlaylist,
-                                        args.song,
-                                        context
+                                        args.song
                                     )
                                 )
                                 navController.navigateUp()

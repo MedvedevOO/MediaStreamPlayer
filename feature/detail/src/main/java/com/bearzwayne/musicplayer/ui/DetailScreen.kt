@@ -24,6 +24,7 @@ import com.bearzwayne.musicplayer.feature.detail.R
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
 import com.bearzwayne.musicplayer.other.PlayerState
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 import com.bearzwayne.musicplayer.ui.components.AnimatedGradientBackgroundBox
 import com.bearzwayne.musicplayer.ui.components.AnimatedToolBar
 import com.bearzwayne.musicplayer.ui.components.BottomScrollableContent
@@ -42,7 +43,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "UnrememberedMutableState")
 @Composable
 fun DetailScreen(
-    contentType: String,
+    contentType: ContentType,
     contentId: Int?,
     contentName: String?,
     onNavigateUp: () -> Unit,
@@ -239,7 +240,7 @@ fun PreviewDetailScreen() {
 
     val contentUiState = DetailScreenItemUiState(
         loading = false,
-        contentType = "playlist",
+        contentType = ContentType.Playlist,
         contentId = 0,
         contentName = "AllTracks1111111111111111111111111111111111111111111111111111",
         contentDescription = "Tracks: 511111111111111111111111111111111111111111111",

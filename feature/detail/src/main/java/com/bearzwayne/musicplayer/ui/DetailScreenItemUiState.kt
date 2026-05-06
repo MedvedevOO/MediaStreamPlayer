@@ -6,10 +6,11 @@ import com.bearzwayne.musicplayer.data.utils.DataProvider
 import com.bearzwayne.musicplayer.domain.model.Album
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 
 data class DetailScreenItemUiState(
     val loading: Boolean? = false,
-    val contentType: String = "playlist",
+    val contentType: ContentType = ContentType.Playlist,
     val contentId: Int = 0,
     val contentName: String = DataProvider.getString(R.string.all_tracks),
     val contentDescription: String = "All Tracks",

@@ -30,6 +30,7 @@ import com.bearzwayne.musicplayer.domain.usecase.ResumeSongUseCase
 import com.bearzwayne.musicplayer.domain.usecase.SetPlaylistUseCase
 import com.bearzwayne.musicplayer.other.PlayerState
 import com.bearzwayne.musicplayer.other.Resource
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -264,7 +265,7 @@ class DetailScreenViewModel @Inject constructor(
             if (album != null) {
                 detailScreenItemUiState = detailScreenItemUiState.copy(
                     loading = false,
-                    contentType = "album",
+                    contentType = ContentType.Album,
                     contentId = album.id.toInt(),
                     contentName = album.name,
                     contentDescription = DataProvider.getString(
@@ -299,7 +300,7 @@ class DetailScreenViewModel @Inject constructor(
             if (artist != null) {
                 detailScreenItemUiState = detailScreenItemUiState.copy(
                     loading = false,
-                    contentType = "artist",
+                    contentType = ContentType.Artist,
                     contentId = artist.id,
                     contentName = artist.name,
                     contentDescription = DataProvider.getString(
@@ -332,7 +333,7 @@ class DetailScreenViewModel @Inject constructor(
             if (playlist != null) {
                 detailScreenItemUiState = detailScreenItemUiState.copy(
                     loading = false,
-                    contentType = "playlist",
+                    contentType = ContentType.Playlist,
                     contentId = playlist.id,
                     contentName = playlist.name,
                     contentDescription = DataProvider.getString(
@@ -356,12 +357,11 @@ class DetailScreenViewModel @Inject constructor(
         }
     }
 
-    private fun setDetailScreenItem(contentId: Int?, contentName: String?, contentType: String) {
+    private fun setDetailScreenItem(contentId: Int?, contentName: String?, contentType: ContentType) {
         when (contentType) {
-            "album" -> getAlbumAsDetailScreenItem(contentId ?: contentName ?: 0)
-            "artist" -> getArtistAsDetailScreenItem(contentId ?: contentName ?: 0)
-            "playlist" -> getPlaylistAsDetailScreenItem(contentId ?: 0)
-            else -> {}
+            ContentType.Album -> getAlbumAsDetailScreenItem(contentId ?: contentName ?: 0)
+            ContentType.Artist -> getArtistAsDetailScreenItem(contentId ?: contentName ?: 0)
+            ContentType.Playlist -> getPlaylistAsDetailScreenItem(contentId ?: 0)
         }
     }
 

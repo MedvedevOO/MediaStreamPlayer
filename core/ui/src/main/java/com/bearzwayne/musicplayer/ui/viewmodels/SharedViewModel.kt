@@ -1,13 +1,12 @@
 package com.bearzwayne.musicplayer.ui.viewmodels
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bearzwayne.musicplayer.ui.R
+import com.bearzwayne.musicplayer.data.utils.DataProvider
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
 import com.bearzwayne.musicplayer.domain.usecase.AddNewPlaylistUseCase
@@ -25,7 +24,9 @@ import com.bearzwayne.musicplayer.other.PlayerState
 import com.bearzwayne.musicplayer.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -45,6 +46,9 @@ class SharedViewModel @Inject constructor(
     private val getPlaylistsUseCase: GetPlaylistsUseCase,
 ) : ViewModel() {
     private var positionJob: Job? = null
+    private val _userMessage = Channel<String>(Channel.BUFFERED)
+    val userMessage = _userMessage.receiveAsFlow()
+
     var musicControllerUiState by mutableStateOf(MusicControllerUiState())
         private set
 
@@ -61,8 +65,7 @@ class SharedViewModel @Inject constructor(
             is SharedViewModelEvent.AddNewPlaylist -> addNewPlaylistUseCase(event.newPlaylist)
             is SharedViewModelEvent.AddSongToNewPlaylist -> addSongToNewPlaylist(
                 event.newPlaylist,
-                event.newSong,
-                event.context
+                event.newSong
             )
 
             is SharedViewModelEvent.AddSongListToQueue -> addSongsToQueueUseCase(event.songList)
@@ -163,7 +166,7 @@ class SharedViewModel @Inject constructor(
         }
     }
 
-    private fun addSongToNewPlaylist(newPlaylist: Playlist, newSong: Song, context: Context) {
+    private fun addSongToNewPlaylist(newPlaylist: Playlist, newSong: Song) {
         val newSongList = newPlaylist.songList.toMutableList()
             .apply { add(newSong) }
         val resultList = newPlaylist.copy(
@@ -171,8 +174,7 @@ class SharedViewModel @Inject constructor(
             artWork = newSong.imageUrl
         )
         addNewPlaylistUseCase(resultList)
-        val toastText =
-            context.getString(R.string.track_added_to_playlist, newPlaylist.name)
-        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+        val toastText = DataProvider.getString(R.string.track_added_to_playlist, newPlaylist.name)
+        viewModelScope.launch { _userMessage.send(toastText) }
     }
 }

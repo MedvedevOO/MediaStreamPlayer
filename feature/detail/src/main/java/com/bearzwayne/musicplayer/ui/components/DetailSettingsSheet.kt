@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.bearzwayne.musicplayer.feature.detail.R
 import com.bearzwayne.musicplayer.ui.DetailScreenItemUiState
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 import com.bearzwayne.musicplayer.ui.graySurface
 import com.bearzwayne.musicplayer.ui.typography
 import com.bearzwayne.musicplayer.ui.util.isSystemDark
@@ -57,7 +58,7 @@ fun DetailSettingsSheet(
 ) {
     val menuItems = when (contentUiState.contentType) {
 
-        "playlist" -> {
+        ContentType.Playlist -> {
             mutableMapOf(
                 Pair(stringResource(R.string.play_next), Icons.AutoMirrored.Filled.QueueMusic),
                 Pair(

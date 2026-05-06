@@ -2,6 +2,7 @@ package com.bearzwayne.musicplayer.ui
 
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.Song
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 
 sealed class DetailScreenEvent {
     data object PlaySong : DetailScreenEvent()
@@ -16,7 +17,7 @@ sealed class DetailScreenEvent {
     data class OnPlaylistChange(val newPlaylist: Playlist): DetailScreenEvent()
     data class OnSongSelected(val selectedSong: Song) : DetailScreenEvent()
     data class OnSongLikeClick(val song: Song) : DetailScreenEvent()
-    data class SetDetailScreenItem(val contentId: Int?, val contentName: String?, val contentType: String): DetailScreenEvent()
+    data class SetDetailScreenItem(val contentId: Int?, val contentName: String?, val contentType: ContentType): DetailScreenEvent()
     data class OnSongListItemClick(val song: Song): DetailScreenEvent()
 
 }

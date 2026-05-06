@@ -61,6 +61,7 @@ import com.bearzwayne.musicplayer.ui.navigation.SongSettings
 import com.bearzwayne.musicplayer.ui.SongEvent
 import com.bearzwayne.musicplayer.ui.SongScreen
 import com.bearzwayne.musicplayer.ui.SongViewModel
+import com.bearzwayne.musicplayer.ui.navigation.ContentType
 import com.bearzwayne.musicplayer.ui.typography
 
 @Composable
@@ -109,7 +110,7 @@ fun SongBar(
             onGotoArtistClick = {
                 navController.navigate(
                     Detail(
-                        type = "artist",
+                        type = ContentType.Artist,
                         name = musicControllerUiState.currentSong?.artist
                     )
                 )
@@ -118,7 +119,7 @@ fun SongBar(
             onGotoAlbumClick = {
                 navController.navigate(
                     Detail(
-                        type = "album",
+                        type = ContentType.Album,
                         name = musicControllerUiState.currentSong?.album
                     )
                 )
