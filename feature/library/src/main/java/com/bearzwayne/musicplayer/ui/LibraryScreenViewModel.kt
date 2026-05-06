@@ -16,8 +16,6 @@ import com.bearzwayne.musicplayer.domain.usecase.GetPlaylistsUseCase
 import com.bearzwayne.musicplayer.domain.usecase.RenamePlaylistUseCase
 import com.bearzwayne.musicplayer.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -132,7 +130,7 @@ class LibraryScreenViewModel @Inject constructor(
     }
 
     private fun deletePlaylist(playlist: Playlist) {
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             delay(2000L)
 
             val newPlaylists = libraryScreenUiState.playlists!!.toMutableList().apply {

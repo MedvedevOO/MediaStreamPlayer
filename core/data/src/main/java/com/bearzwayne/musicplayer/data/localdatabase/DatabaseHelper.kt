@@ -8,14 +8,18 @@ import com.bearzwayne.musicplayer.data.utils.DataProvider
 import com.bearzwayne.musicplayer.domain.model.Playlist
 import com.bearzwayne.musicplayer.domain.model.RadioStation
 import com.bearzwayne.musicplayer.domain.model.Song
+import com.bearzwayne.musicplayer.data.di.ApplicationScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DatabaseHelper @Inject constructor(private val musicPlayerDatabase: MusicPlayerDatabase) {
+class DatabaseHelper @Inject constructor(
+    private val musicPlayerDatabase: MusicPlayerDatabase,
+    @ApplicationScope private val applicationScope: CoroutineScope
+) {
 
     suspend fun addSongsToDatabase(songs: List<Song>) {
 
@@ -90,7 +94,7 @@ class DatabaseHelper @Inject constructor(private val musicPlayerDatabase: MusicP
             val newSongList = favoritePlaylist.songList.toMutableStateList().apply { add(song) }
             favoritePlaylist.songList = newSongList
         }
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             updateSinglePlayListInDB(favoritePlaylist)
         }
 

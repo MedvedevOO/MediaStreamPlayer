@@ -9,6 +9,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import com.bearzwayne.musicplayer.data.R
+import com.bearzwayne.musicplayer.data.di.ApplicationScope
 import com.bearzwayne.musicplayer.data.utils.DataProvider
 import com.bearzwayne.musicplayer.data.mapper.toMediaItem
 import com.bearzwayne.musicplayer.data.mapper.toSong
@@ -21,14 +22,16 @@ import com.bearzwayne.musicplayer.other.Resource
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.MoreExecutors
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 
 
-class MusicControllerImpl(context: Context) : MusicController {
+class MusicControllerImpl(
+    context: Context,
+    @ApplicationScope private val applicationScope: CoroutineScope
+) : MusicController {
     private lateinit var mediaItems: List<MediaItem>
     private var mediaControllerFuture: ListenableFuture<MediaController>
     private val selectedPlaylistFlow = MutableStateFlow<Resource<Playlist>>(Resource.Loading())
@@ -73,7 +76,7 @@ class MusicControllerImpl(context: Context) : MusicController {
                 val currentSong = player.currentMediaItem?.toSong()
                 val playerState = player.playbackState.toPlayerState(player.isPlaying)
                 Log.d("playerState", "$playerState")
-                CoroutineScope(Dispatchers.IO).launch {
+                applicationScope.launch {
                     selectedSongFlow.emit(Resource.Loading())
                     selectedSongFlow.emit(Resource.Success(currentSong))
                     playerStateFlow.emit(playerState)
@@ -123,7 +126,7 @@ class MusicControllerImpl(context: Context) : MusicController {
     }
 
     override fun setPlaylist(playlist: Playlist) {
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             selectedPlaylistFlow.emit(Resource.Success(playlist))
         }
         addMediaItems(playlist.songList)
@@ -179,7 +182,7 @@ class MusicControllerImpl(context: Context) : MusicController {
             artWork = ""
         )
 
-        CoroutineScope(Dispatchers.IO).launch {
+        applicationScope.launch {
             selectedPlaylistFlow.emit(Resource.Loading())
             selectedPlaylistFlow.emit(Resource.Success(updatedPlaylist))
         }

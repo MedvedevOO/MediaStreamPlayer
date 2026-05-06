@@ -1,6 +1,7 @@
 package com.bearzwayne.musicplayer.di
 
 import android.content.Context
+import com.bearzwayne.musicplayer.data.di.ApplicationScope
 import com.bearzwayne.musicplayer.data.localdatabase.DatabaseHelper
 import com.bearzwayne.musicplayer.data.localdatabase.MusicPlayerDatabase
 import com.bearzwayne.musicplayer.data.remotedatabase.MusicRemoteDatabase
@@ -16,6 +17,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Singleton
 
 @Module
@@ -35,20 +39,27 @@ object AppModule {
     @Provides
     fun provideLocalDatabase(@ApplicationContext context: Context) = MusicPlayerDatabase.getDatabase(context)
 
-
+    @Singleton
+    @Provides
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Singleton
     @Provides
     fun provideMusicRepository(
         @ApplicationContext context: Context,
         musicRemoteDatabase: MusicRemoteDatabase,
-        databaseHelper: DatabaseHelper
+        databaseHelper: DatabaseHelper,
+        @ApplicationScope applicationScope: CoroutineScope
     ): MusicRepository =
-        MusicRepositoryImpl(context, musicRemoteDatabase, databaseHelper)
+        MusicRepositoryImpl(context, musicRemoteDatabase, databaseHelper, applicationScope)
 
     @Singleton
     @Provides
-    fun provideMusicController(@ApplicationContext context: Context): MusicController =
-        MusicControllerImpl(context)
+    fun provideMusicController(
+        @ApplicationContext context: Context,
+        @ApplicationScope applicationScope: CoroutineScope
+    ): MusicController =
+        MusicControllerImpl(context, applicationScope)
 }
 

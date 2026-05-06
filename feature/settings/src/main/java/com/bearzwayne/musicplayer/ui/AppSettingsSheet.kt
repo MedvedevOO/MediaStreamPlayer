@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,8 +42,6 @@ import com.bearzwayne.musicplayer.feature.settings.R
 import com.bearzwayne.musicplayer.data.utils.SettingsKeys
 import com.bearzwayne.musicplayer.data.utils.SettingsKeys.dataStore
 import com.bearzwayne.musicplayer.ui.library.components.Title
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
@@ -74,6 +73,7 @@ fun AppSettingsSheet(onDismissRequest: () -> Unit) {
 @Composable
 fun ThemeDropdownMenu() {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val themeExpanded = remember { mutableStateOf(false) }
     val themeItems = listOf(
         stringResource(R.string.match_system),
@@ -126,7 +126,7 @@ fun ThemeDropdownMenu() {
             themeItems.forEach { item ->
                 DropdownMenuItem(
                     onClick = {
-                        CoroutineScope(Dispatchers.Default).launch {
+                        coroutineScope.launch {
                             SettingsKeys.saveThemeSetting(context, item)
                         }
                         themeExpanded.value = false
@@ -152,6 +152,7 @@ fun ThemeDropdownMenu() {
 @Composable
 fun ColorPalletDropdownMenu() {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val colorPalletExpanded = remember { mutableStateOf(false) }
     val defaultColorPalette = stringResource(id = R.string.orange)
     val selectedColorPalletItem = context.dataStore.data
@@ -213,7 +214,7 @@ fun ColorPalletDropdownMenu() {
                 }
                 DropdownMenuItem(
                     onClick = {
-                        CoroutineScope(Dispatchers.Default).launch {
+                        coroutineScope.launch {
                             SettingsKeys.saveSelectedColorPalette(context, item)
                         }
                         colorPalletExpanded.value = false

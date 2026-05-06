@@ -31,8 +31,6 @@ import com.bearzwayne.musicplayer.domain.usecase.SetPlaylistUseCase
 import com.bearzwayne.musicplayer.other.PlayerState
 import com.bearzwayne.musicplayer.other.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -234,7 +232,7 @@ class DetailScreenViewModel @Inject constructor(
 
     private fun deletePlaylist(playlistName: String) {
         val playlistToDelete = detailScreenUiState.playlists!!.first { it.name == playlistName }
-        CoroutineScope(Dispatchers.IO).launch {
+        viewModelScope.launch {
             delay(2000L)
             if (detailScreenUiState.selectedPlaylist == playlistToDelete) {
                 detailScreenUiState.playlists?.let { changePlaylist(it.first()) }
