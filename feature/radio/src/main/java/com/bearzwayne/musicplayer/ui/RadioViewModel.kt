@@ -190,8 +190,8 @@ class RadioViewModel @Inject constructor(
     }
 
     private fun addOrRemoveFromFavorites(radioStation: RadioStation) {
-       val favorites = radioUiState.favoriteStations?.toMutableList()
-        if (favorites!!.contains(radioStation)) {
+       val favorites = radioUiState.favoriteStations?.toMutableList() ?: mutableListOf()
+        if (favorites.contains(radioStation)) {
             favorites.remove(radioStation)
         } else {
             favorites.add(radioStation)

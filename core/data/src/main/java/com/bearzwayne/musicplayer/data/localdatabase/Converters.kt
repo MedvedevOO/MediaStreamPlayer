@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken
 
 
 class Converters {
-
+    private val gson = Gson()
     @TypeConverter
     fun fromUri(uri: Uri): String {
         return uri.toString()
@@ -23,39 +23,33 @@ class Converters {
 
     @TypeConverter
     fun fromSongList(songList: List<Song>): String {
-        val gson = Gson()
         return gson.toJson(songList)
     }
 
     @TypeConverter
     fun toSongList(songListString: String): List<Song> {
-        val gson = Gson()
         val listType = object : TypeToken<List<Song>>() {}.type
         return gson.fromJson(songListString, listType)
     }
 
     @TypeConverter
     fun fromAlbumList(songList: List<Album>): String {
-        val gson = Gson()
         return gson.toJson(songList)
     }
 
     @TypeConverter
     fun toAlbumList(songListString: String): List<Album> {
-        val gson = Gson()
         val listType = object : TypeToken<List<Album>>() {}.type
         return gson.fromJson(songListString, listType)
     }
 
     @TypeConverter
     fun fromArtistList(songList: List<Artist>): String {
-        val gson = Gson()
         return gson.toJson(songList)
     }
 
     @TypeConverter
     fun toArtistList(songListString: String): List<Artist> {
-        val gson = Gson()
         val listType = object : TypeToken<List<Artist>>() {}.type
         return gson.fromJson(songListString, listType)
     }

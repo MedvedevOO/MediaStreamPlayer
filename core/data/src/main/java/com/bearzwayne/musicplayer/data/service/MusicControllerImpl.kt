@@ -121,7 +121,9 @@ class MusicControllerImpl(
             mediaController?.setMediaItems(mediaItems)
             mediaController?.prepare()
         } else {
-            pendingMediaItems.addAll(mediaItems)
+            synchronized(pendingMediaItems) {
+                pendingMediaItems.addAll(mediaItems)
+            }
         }
     }
 
@@ -135,12 +137,13 @@ class MusicControllerImpl(
 
     private fun onMediaControllerReady(controller: MediaController) {
         controllerListener()
-        if (pendingMediaItems.isNotEmpty()) {
-            controller.clearMediaItems()
-            controller.setMediaItems(pendingMediaItems)
-            controller.prepare()
-            pendingMediaItems.clear()
-
+        synchronized(pendingMediaItems) {
+            if (pendingMediaItems.isNotEmpty()) {
+                controller.clearMediaItems()
+                controller.setMediaItems(pendingMediaItems)
+                controller.prepare()
+                pendingMediaItems.clear()
+            }
         }
     }
 

@@ -24,13 +24,13 @@ fun SongDto.toSong() =
 fun MediaItem.toSong() =
     Song(
         mediaId = mediaId,
-        title = mediaMetadata.title.toString(),
-        artist = mediaMetadata.artist.toString(),
-        album = mediaMetadata.albumTitle.toString(),
-        genre = mediaMetadata.genre.toString(),
-        year = mediaMetadata.releaseYear.toString(),
+        title =  mediaMetadata.title?.toString() ?: "No title",
+        artist = mediaMetadata.artist?.toString() ?: "Unknown artist",
+        album = mediaMetadata.albumTitle?.toString() ?: "Unknown album",
+        genre = mediaMetadata.genre?.toString() ?: "Unknown genre",
+        year = mediaMetadata.releaseYear?.toString() ?: "Unknown year",
         songUrl = mediaId,
-        imageUrl = mediaMetadata.artworkUri.toString()
+        imageUrl = mediaMetadata.artworkUri?.toString() ?: "No artwork available"
     )
 
 fun Song.toMediaItem() = MediaItem.Builder()
